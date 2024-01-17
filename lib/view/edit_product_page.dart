@@ -81,8 +81,10 @@ class _EditProductPageState extends State<EditProductPage> {
                                 id: widget.product.id,
                                 localId: widget.product.localId,
                                 name: controller.name.text,
-                                description: controller.description.text,
                                 quantity: widget.product.quantity,
+                                group: widget.product.group,
+                                description: controller.description.text,
+                                
                                 setor: '',
                               );
                               await controller.editProductOffline(newProduct);
@@ -103,8 +105,10 @@ class _EditProductPageState extends State<EditProductPage> {
                                 id: widget.product.id,
                                 localId: widget.product.localId,
                                 name: controller.name.text,
-                                description: controller.description.text,
                                 quantity: widget.product.quantity,
+                                group: widget.product.group,
+                                description: controller.description.text,
+                                
                                 setor: '',
                               );
                               controller.deleteProductOffline(newProduct);

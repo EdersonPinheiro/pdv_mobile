@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../controllers/group_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../model/product.dart';
 
@@ -16,10 +17,25 @@ class CreateProductPage extends StatefulWidget {
 }
 
 class _CreateProductPageState extends State<CreateProductPage> {
-  ProductController controller = new ProductController();
+  final ProductController controller = Get.put(ProductController());
+  final GroupController groupController = Get.put(GroupController());
   final Dio dio = Dio();
   final _formKey = GlobalKey<FormState>();
   static const uuid = Uuid();
+  String? _selectedGroup;
+  List _groupList = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getGroupsOff();
+  }
+
+  Future<void> getGroupsOff() async {
+    _groupList = await groupController.getOfflineGroups();
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +84,34 @@ class _CreateProductPageState extends State<CreateProductPage> {
                         return null;
                       },
                     ),
+                    DropdownButtonFormField(
+                      value: _selectedGroup,
+                      onChanged: (String? value) {
+                        _selectedGroup = value;
+                        controller.group.text = value.toString();
+                        setState(() {
+                          _selectedGroup = value;
+                          controller.group.text = value.toString();
+                          //controller.groupController.text = selectedGroup.toString();
+                        });
+                        print(controller.group.text);
+                      },
+                      items: _groupList.map((group) {
+                        return DropdownMenuItem<String>(
+                          value: group.id ?? group.localId,
+                          child: Text(group.name),
+                        );
+                      }).toList(),
+                      decoration: const InputDecoration(
+                        labelText: 'Grupo',
+                      ),
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Defina o grupo do produto';
+                        }
+                        return null;
+                      },
+                    ),
                     TextFormField(
                       controller: controller.description,
                       decoration: const InputDecoration(
@@ -82,8 +126,9 @@ class _CreateProductPageState extends State<CreateProductPage> {
                             id: '',
                             localId: uuid.v4(),
                             name: controller.name.text,
-                            description: controller.description.text,
                             quantity: int.parse(controller.quantity.text),
+                            description: controller.description.text,
+                            group: _selectedGroup.toString(),
                             setor: '',
                           );
                           controller.createProductOffline(newProduct);

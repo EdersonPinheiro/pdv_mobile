@@ -4,15 +4,18 @@ class Product {
   String name;
   String description;
   String setor;
+  String group;
   int quantity;
 
   Product({
     required this.id,
     required this.localId,
     required this.name,
+    required this.quantity,
+    required this.group,
     required this.description,
     required this.setor,
-    required this.quantity,
+    
   });
 
   Map<String, dynamic> toJson() {
@@ -20,9 +23,11 @@ class Product {
       'objectId': id,
       'localId': localId,
       'name': name,
+      'quantity': quantity,
+      'group': group,
       'description': description,
       'setor': setor,
-      'quantity': quantity,
+      
     };
   }
 
@@ -31,9 +36,11 @@ class Product {
       id: json['objectId'],
       localId: json['localId'],
       name: json['name'],
+      quantity: json['quantity'],
+      group: json['group'] ??'',
       description: json['description'],
       setor: json['setor'],
-      quantity: json['quantity'],
+      
     );
   }
 }

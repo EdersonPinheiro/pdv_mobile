@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:meu_estoque/view/product/product_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/constants.dart';
+import '../model/moviment.dart';
 import '../model/product.dart';
 
 class ProductController extends GetxController {
@@ -16,8 +17,9 @@ class ProductController extends GetxController {
   List products = <Product>[].obs;
   final localId = TextEditingController();
   final name = TextEditingController();
-  final description = TextEditingController();
   final quantity = TextEditingController();
+  final group = TextEditingController();
+  final description = TextEditingController();
 
   Future<void> createProduct(Product product) async {
     try {
@@ -110,7 +112,27 @@ class ProductController extends GetxController {
       });
 
       prefs.setStringList('offlineProducts', productList);
+    } catch (e) {
+      print(e);
+    }
+  }
 
+  Future<void> createMovimentOffline(
+      Moviment newMoviment, Product updatedProduct) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      List<String> productList = prefs.getStringList('offlineProducts') ?? [];
+
+      // Adiciona o produto atualizado na lista de produtos offline
+      productList.add(jsonEncode(updatedProduct.toJson()));
+
+      // Salva a lista atualizada no shared_preferences
+      prefs.setStringList('offlineProducts', productList);
+
+      // Salva a movimentação offline
+      List<String> movimentList = prefs.getStringList('offlineMoviments') ?? [];
+      movimentList.add(jsonEncode(newMoviment.toJson()));
+      prefs.setStringList('offlineMoviments', movimentList);
     } catch (e) {
       print(e);
     }

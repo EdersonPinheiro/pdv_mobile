@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../entrada_saida/entrada_saida_page.dart';
 import '../group/group_page.dart';
+import '../moviment/moviment_page.dart';
 import '../product/product_page.dart';
 import '../type_moviment/type_moviment_page.dart';
 import 'components/button.dart';
@@ -197,7 +199,7 @@ class _HomePageState extends State<HomePage> {
                             title: "Entrada/Saída",
                             icon: Icons.swap_horiz,
                             onPressed: () {
-                              //Get.to(EntradaSaidaPage());
+                              Get.to(EntradaSaidaPage());
                             },
                           ),
                           Button(
@@ -211,7 +213,7 @@ class _HomePageState extends State<HomePage> {
                             title: "Movimentações",
                             icon: Icons.move_to_inbox,
                             onPressed: () {
-                              //Get.to(const MovimentacoesPage());
+                              Get.to(MovimentacoesPage());
                             },
                           ),
                           Button(
