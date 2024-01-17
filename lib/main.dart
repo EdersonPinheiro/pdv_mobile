@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:meu_estoque/view/product_page.dart';
+import 'package:meu_estoque/view/product/product_page.dart';
+import 'view/home/home_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,12 +13,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Meu Estoque',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: ProductsPage()
-    );
+        title: 'Meu Estoque',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: false,
+        ),
+        getPages: [
+          GetPage(name: '/products_page', page: () => ProductsPage()),
+          // ... outras rotas
+        ],
+        home: HomePage());
   }
 }
