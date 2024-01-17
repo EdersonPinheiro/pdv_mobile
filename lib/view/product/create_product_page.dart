@@ -87,18 +87,19 @@ class _CreateProductPageState extends State<CreateProductPage> {
                     DropdownButtonFormField(
                       value: _selectedGroup,
                       onChanged: (String? value) {
-                        _selectedGroup = value;
-                        controller.group.text = value.toString();
+                        print("Dropdown onChanged triggered");
+                        print("Selected Value: $value");
                         setState(() {
                           _selectedGroup = value;
-                          controller.group.text = value.toString();
-                          //controller.groupController.text = selectedGroup.toString();
+                          controller.group.text = value ?? '';
                         });
-                        print(controller.group.text);
+                        print(
+                            "Controller Group Text: ${controller.group.text}");
+                        print("Selected Group: $_selectedGroup");
                       },
                       items: _groupList.map((group) {
                         return DropdownMenuItem<String>(
-                          value: group.id ?? group.localId,
+                          value: group.localId,
                           child: Text(group.name),
                         );
                       }).toList(),
@@ -128,7 +129,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
                             name: controller.name.text,
                             quantity: int.parse(controller.quantity.text),
                             description: controller.description.text,
-                            group: _selectedGroup.toString(),
+                            group: controller.group.text,
                             setor: '',
                           );
                           controller.createProductOffline(newProduct);
