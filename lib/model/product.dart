@@ -6,6 +6,7 @@ class Product {
   String setor;
   String group;
   int quantity;
+  String? action;
 
   Product({
     required this.id,
@@ -15,7 +16,7 @@ class Product {
     required this.group,
     required this.description,
     required this.setor,
-    
+    this.action,
   });
 
   Map<String, dynamic> toJson() {
@@ -27,7 +28,6 @@ class Product {
       'group': group,
       'description': description,
       'setor': setor,
-      
     };
   }
 
@@ -37,10 +37,10 @@ class Product {
       localId: json['localId'],
       name: json['name'],
       quantity: json['quantity'],
-      group: json['group'] ??'',
+      group: json['group'] ?? '',
       description: json['description'],
       setor: json['setor'],
-      
+      action: json['action']
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../controllers/sync/sync_controller.dart';
+import '../../controllers/user_controller.dart';
 import '../../model/user.dart';
 import '../auth/login_page.dart';
 import '../payment/payment_page.dart';
@@ -14,9 +15,20 @@ import '../moviment/moviment_page.dart';
 import '../product/product_page.dart';
 import '../type_moviment/type_moviment_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   final SyncController syncController = Get.put(SyncController());
-  final userL = <User>[].obs;
+  final UserController userController = Get.put(UserController());
+
+  @override
+  void initState() {
+    super.initState();
+    userController.getUser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +57,9 @@ class HomePage extends StatelessWidget {
       drawer: Drawer(
         child: Obx(
           () => ListView.builder(
-            itemCount: userL.length,
+            itemCount: userController.userL.length,
             itemBuilder: (BuildContext context, int index) {
-              User user = userL[index];
+              User user = userController.userL[index];
               return Column(
                 children: [
                   UserAccountsDrawerHeader(

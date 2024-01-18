@@ -1,12 +1,16 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../constants/constants.dart';
+import '../../model/product.dart';
+import '../product_controller.dart';
 import 'internet_connection_hook.dart';
 
 class SyncController extends GetxController {
   InternetConnectionHook internetConnectionHook = InternetConnectionHook();
+  final ProductController productController = Get.put(ProductController());
   var isConn = false.obs;
 
   @override
@@ -27,6 +31,7 @@ class SyncController extends GetxController {
 
           if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
             isConn.value = true;
+            await syncOfflineProducts();
             await apiMethod();
           } else {
             isConn.value = false;
@@ -40,5 +45,25 @@ class SyncController extends GetxController {
       isConn.value = false;
       print(e);
     }
+  }
+
+  Future<void> syncOfflineProducts() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> actionProducts = prefs.getStringList('actionProducts') ?? [];
+
+    for (String productString in actionProducts) {
+      Map<String, dynamic> productMap = jsonDecode(productString);
+      Product product = Product.fromJson(productMap);
+
+      if (product.action == "new") {
+        await productController.createProduct(product);
+      }
+
+      // Remover o produto da lista de ações após a sincronização
+      actionProducts.remove(productString);
+    }
+
+    // Atualizar a lista de ações no SharedPreferences após a sincronização
+    prefs.setStringList('actionProducts', actionProducts);
   }
 }

@@ -14,7 +14,9 @@ import '../model/product.dart';
 
 class ProductController extends GetxController {
   final dio = new Dio();
+  List actioProducts = <Product>[].obs;
   List products = <Product>[].obs;
+  final id = TextEditingController();
   final localId = TextEditingController();
   final name = TextEditingController();
   final quantity = TextEditingController();
@@ -55,6 +57,49 @@ class ProductController extends GetxController {
       prefs.setStringList('offlineProducts', productList);
 
       products = productList;
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> createActionProductOffline(Product product) async {
+    try {
+      // Create a new Product instance with the input values
+      Product newProduct = Product(
+        id: id.text,
+        localId: localId.text,
+        name: name.text,
+        quantity: int.parse(quantity.text),
+        group: group.text,
+        description: description.text,
+        setor: '',
+      );
+
+      // Check if localId already exists in offline products
+      if (actioProducts
+          .any((product) => product.localId == newProduct.localId)) {
+        // Handle duplicate localId as needed
+        print("Product with the same localId already exists offline.");
+        return;
+      }
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      List<String> productList = prefs.getStringList('actionProducts') ?? [];
+      productList.add(jsonEncode(product.toJson()));
+      prefs.setStringList('actionProducts', productList);
+
+      products = productList;
+
+      // Clear the text controllers
+      id.clear();
+      localId.clear();
+      name.clear();
+      quantity.clear();
+      group.clear();
+      description.clear();
+
+      // Notify the UI that the list has been updated
+      update();
     } catch (e) {
       print(e);
     }

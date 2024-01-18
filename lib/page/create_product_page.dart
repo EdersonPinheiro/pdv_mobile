@@ -5,6 +5,7 @@ import 'package:meu_estoque/controllers/group_controller.dart';
 import 'package:uuid/uuid.dart';
 
 import '../controllers/product_controller.dart';
+import '../controllers/sync/sync_controller.dart';
 import '../model/product.dart';
 
 class CreateProductPage extends StatefulWidget {
@@ -19,6 +20,7 @@ class CreateProductPage extends StatefulWidget {
 class _CreateProductPageState extends State<CreateProductPage> {
   ProductController controller = new ProductController();
   GroupController groupController = new GroupController();
+  final SyncController syncController = Get.put(SyncController());
   final Dio dio = Dio();
   final _formKey = GlobalKey<FormState>();
   static const uuid = Uuid();
@@ -128,10 +130,11 @@ class _CreateProductPageState extends State<CreateProductPage> {
                             group: _selectedGroup.toString(),
                             quantity: int.parse(controller.quantity.text),
                             description: controller.description.text,
-                            
                             setor: '',
                           );
-                          controller.createProductOffline(newProduct);
+                          syncController.isConn == true
+                              ? createProductOffline(newProduct)
+                              : controller.createProduct(newProduct);
                           Get.back();
                           widget.reload();
                         },
@@ -144,5 +147,10 @@ class _CreateProductPageState extends State<CreateProductPage> {
         ),
       ),
     );
+  }
+
+  Future<void> createProductOffline(Product newProduct) async {
+    controller.createProductOffline(newProduct);
+    controller.createActionProductOffline(newProduct);
   }
 }
