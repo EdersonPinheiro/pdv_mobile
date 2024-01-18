@@ -2,40 +2,36 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:meu_estoque/view/product/create_product_page.dart';
-import 'package:meu_estoque/view/product/edit_product_page.dart';
+import 'package:meu_estoque/model/type_moviment.dart';
+import 'package:meu_estoque/page/product/create_product_page.dart';
+import 'package:meu_estoque/page/product/edit_product_page.dart';
+import 'package:meu_estoque/page/type_moviment/edit_type_moviment_page.dart';
 
 import '../../controllers/group_controller.dart';
 import '../../controllers/product_controller.dart';
+import '../../controllers/type_moviment_controller.dart';
 import '../../model/group.dart';
 import '../../model/product.dart';
-import 'create_group_page.dart';
-import 'edit_group_page.dart';
+import 'create_type_moviment_page.dart';
 
-class GroupPage extends StatefulWidget {
+class TypeMovimentPage extends StatefulWidget {
   @override
-  _GroupPageState createState() => _GroupPageState();
+  _TypeMovimentPageState createState() => _TypeMovimentPageState();
 }
 
-class _GroupPageState extends State<GroupPage> {
-  final GroupController groupController = Get.put(GroupController());
+class _TypeMovimentPageState extends State<TypeMovimentPage> {
+  final TypeMovimentController typeMovimentController =
+      Get.put(TypeMovimentController());
   bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    getGroupsOff();
+    getTypeMovimentOff();
   }
 
-  List<Product> teste = [];
-  Future<void> getProductsApi() async {
-    groupController.groups = await groupController.getOfflineGroups();
-    setState(() {});
-    print("Buscou os dados da api");
-  }
-
-  Future<void> getGroupsOff() async {
-    await groupController.getOfflineGroups();
+  Future<void> getTypeMovimentOff() async {
+    await typeMovimentController.getOfflineTypeMoviments();
     setState(() {});
   }
 
@@ -43,15 +39,16 @@ class _GroupPageState extends State<GroupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Grupos'),
+        title: const Text('Tipos de Movimento'),
         centerTitle: true,
       ),
       body: RefreshIndicator(
-        onRefresh: getGroupsOff,
+        onRefresh: getTypeMovimentOff,
         child: Obx(() => ListView.builder(
-              itemCount: groupController.groups.length,
+              itemCount: typeMovimentController.typeMoviments.length,
               itemBuilder: (BuildContext context, int index) {
-                Group group = groupController.groups[index];
+                TypeMoviment typeMoviment =
+                    typeMovimentController.typeMoviments[index];
                 return Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: Container(
@@ -63,16 +60,17 @@ class _GroupPageState extends State<GroupPage> {
                       borderRadius: BorderRadius.circular(5.0),
                     ),
                     child: ListTile(
-                      title: Text(group.name),
-                      subtitle: Text(group.description),
+                      title: Text(typeMoviment.name),
+                      subtitle: Text(typeMoviment.type.toString()),
                       onTap: () async {
-                        print(group.toJson());
+                        print(typeMoviment.toJson());
                       },
                       trailing: IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: () async {
-                          Get.to(EditGroupPage(
-                              group: group, reload: getGroupsOff));
+                          Get.to(EditTypeMovimentPage(
+                              typeMoviment: typeMoviment,
+                              reload: getTypeMovimentOff));
                         },
                       ),
                     ),
@@ -83,8 +81,8 @@ class _GroupPageState extends State<GroupPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Get.to(CreateGroupPage(
-            reload: getGroupsOff,
+          Get.to(CreateTypeMovimentPage(
+            reload: getTypeMovimentOff,
           ));
         },
         child: const Icon(Icons.add),

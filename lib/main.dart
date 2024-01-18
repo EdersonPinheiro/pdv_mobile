@@ -1,10 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:meu_estoque/view/product/product_page.dart';
-import 'view/home/home_page.dart';
+import 'package:meu_estoque/page/auth/login_page.dart';
+import 'package:meu_estoque/page/product/product_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'constants/constants.dart';
+import 'controllers/sync/sync_controller.dart';
+import 'page/home/home_page.dart';
 
-void main() {
+Future<void> main() async {
+  Get.put(SyncController());
   runApp(const MyApp());
+  checkSession();
+}
+
+Future<void> checkSession() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  userToken = prefs.getString('userToken') ?? 'null';
+  if (userToken.isNotEmpty) {
+    Get.offAll(HomePage());
+  }
+
+  if (userToken.isEmpty || userToken == 'null') {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    Get.offAll(const LoginPage());
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -13,16 +33,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-        title: 'Meu Estoque',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: false,
-        ),
-        getPages: [
-          GetPage(name: '/products_page', page: () => ProductsPage()),
-          // ... outras rotas
-        ],
-        home: HomePage());
+      title: 'Meu Estoque',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        useMaterial3: false,
+      ),
+      getPages: [
+        GetPage(name: '/products_page', page: () => ProductsPage()),
+        // ... outras rotas
+      ],
+      home: GetBuilder<SyncController>(
+        init: SyncController(),
+        builder: (_) {
+          return LoginPage();
+        },
+      ),
+    );
   }
 }

@@ -23,7 +23,7 @@ class UserController {
           .post('https://parseapi.back4app.com/parse/functions/get-info');
 
       if (response.statusCode == 200) {
-        return (response.data["result"] as List)
+        userL.value = (response.data["result"] as List)
             .map((data) => User.fromJson(data))
             .toList();
       }

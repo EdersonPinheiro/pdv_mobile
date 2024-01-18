@@ -2,11 +2,11 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:meu_estoque/view/product/create_product_page.dart';
-import 'package:meu_estoque/view/product/edit_product_page.dart';
+import 'package:meu_estoque/page/create_product_page.dart';
+import 'package:meu_estoque/page/edit_product_page.dart';
 
-import '../../controllers/product_controller.dart';
-import '../../model/product.dart';
+import '../controllers/product_controller.dart';
+import '../model/product.dart';
 
 class ProductsPage extends StatefulWidget {
   @override
@@ -32,7 +32,9 @@ class _ProductPageState extends State<ProductsPage> {
 
   Future<void> getProductsOff() async {
     await productController.getOfflineProducts();
-    setState(() {});
+    setState(() {
+      
+    });
   }
 
   @override
@@ -40,7 +42,6 @@ class _ProductPageState extends State<ProductsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Produtos'),
-        centerTitle: true,
       ),
       body: RefreshIndicator(
         onRefresh: getProductsOff,
@@ -68,7 +69,8 @@ class _ProductPageState extends State<ProductsPage> {
                         icon: const Icon(Icons.edit),
                         onPressed: () async {
                           Get.to(EditProductPage(
-                              product: product, reload: getProductsOff));
+                              product: product,
+                              reload: getProductsOff));
                         },
                       ),
                     ),
