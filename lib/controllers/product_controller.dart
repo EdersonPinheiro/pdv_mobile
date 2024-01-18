@@ -86,6 +86,7 @@ class ProductController extends GetxController {
           productJson['name'] = editedProduct.name;
           productJson['description'] = editedProduct.description;
           productJson['quantity'] = editedProduct.quantity;
+          productJson['group'] = editedProduct.group;
 
           // Atualiza o produto na lista
           productList[i] = jsonEncode(productJson);

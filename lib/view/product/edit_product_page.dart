@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
+import '../../controllers/group_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../model/product.dart';
 
@@ -17,15 +18,25 @@ class EditProductPage extends StatefulWidget {
 
 class _EditProductPageState extends State<EditProductPage> {
   ProductController controller = ProductController();
-  //String? selectedGroupIndex;
+  final GroupController groupController = Get.put(GroupController());
+  String? _selectedGroup;
+  List _groupList = [];
+
   @override
   void initState() {
     super.initState();
     getProductsOff();
+    getGroupsOff();
     controller.localId.text = widget.product.localId ?? '';
     controller.name.text = widget.product.name;
     controller.description.text = widget.product.description;
     controller.quantity.text = widget.product.quantity.toString();
+    controller.group.text = widget.product.group;
+  }
+
+  Future<void> getGroupsOff() async {
+    _groupList = await groupController.getOfflineGroups();
+    setState(() {});
   }
 
   Future<void> getProductsOff() async {
@@ -66,6 +77,35 @@ class _EditProductPageState extends State<EditProductPage> {
                         return null;
                       },
                     ),
+                    DropdownButtonFormField(
+                      value: _selectedGroup == null ? controller.group.text : _selectedGroup,
+                      onChanged: (String? value) {
+                        print("Dropdown onChanged triggered");
+                        print("Selected Value: $value");
+                        setState(() {
+                          _selectedGroup = value;
+                          controller.group.text = value ?? '';
+                        });
+                        print(
+                            "Controller Group Text: ${controller.group.text}");
+                        print("Selected Group: $_selectedGroup");
+                      },
+                      items: _groupList.map((group) {
+                        return DropdownMenuItem<String>(
+                          value: group.localId,
+                          child: Text(group.name),
+                        );
+                      }).toList(),
+                      decoration: const InputDecoration(
+                        labelText: 'Grupo',
+                      ),
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Defina o grupo do produto';
+                        }
+                        return null;
+                      },
+                    ),
                     TextFormField(
                       controller: controller.description,
                       decoration: const InputDecoration(labelText: 'Descrição'),
@@ -84,7 +124,6 @@ class _EditProductPageState extends State<EditProductPage> {
                                 group: controller.group.text,
                                 quantity: widget.product.quantity,
                                 description: controller.description.text,
-                                
                                 setor: '',
                               );
                               await controller.deleteProductOffline(newProduct);
@@ -112,9 +151,8 @@ class _EditProductPageState extends State<EditProductPage> {
                                 localId: widget.product.localId,
                                 name: controller.name.text,
                                 quantity: widget.product.quantity,
-                                group: widget.product.group,
+                                group: controller.group.text,
                                 description: controller.description.text,
-                                
                                 setor: '',
                               );
                               await controller.editProductOffline(newProduct);
