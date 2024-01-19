@@ -25,7 +25,8 @@ class _ProductPageState extends State<ProductsPage> {
 
   List<Product> teste = [];
   Future<void> getProductsApi() async {
-    productController.products = await productController.getProducts();
+    productController.products.value =
+        (await productController.getProducts()) as List<Product>;
     setState(() {});
     print("Buscou os dados da api");
   }
@@ -67,7 +68,7 @@ class _ProductPageState extends State<ProductsPage> {
                       trailing: IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: () async {
-                          Get.to(EditProductPage(
+                          Get.to(() => EditProductPage(
                               product: product, reload: getProductsOff));
                         },
                       ),

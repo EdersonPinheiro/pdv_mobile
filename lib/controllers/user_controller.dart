@@ -22,9 +22,19 @@ class UserController {
       );
 
       if (response.statusCode == 200) {
-        userL.value = (response.data["result"] as List)
+        List<User> users = (response.data["result"] as List)
             .map((data) => User.fromJson(data))
             .toList();
+
+        if (users.isNotEmpty) {
+          // Save the user information in SharedPreferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('userFullname', users[0].fullname);
+          prefs.setString('userEmail', users[0].email);
+          prefs.setString('userSetor', users[0].setor);
+        }
+
+        userL.value = users;
       } else {
         print(response.data.toString());
       }

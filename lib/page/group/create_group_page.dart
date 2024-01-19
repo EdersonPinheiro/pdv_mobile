@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../controllers/group_controller.dart';
@@ -62,13 +63,16 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                         onPressed: () async {
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          controller.setor.text = prefs.getString('setor').toString();
                           const uuid = Uuid();
                           final newGroup = Group(
                             id: '',
                             localId: uuid.v4(),
                             name: controller.name.text,
                             description: controller.description.text,
-                            setor: '',
+                            setor: controller.setor.text,
+                            action: 'new'
                           );
                           controller.createGroupOffline(newGroup);
                           Get.back();
@@ -83,5 +87,10 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
         ),
       ),
     );
+  }
+
+  Future<void> createGroupOffline(Group newGroup) async {
+    controller.createGroupOffline(newGroup);
+    controller.createActionGroupOffline(newGroup);
   }
 }

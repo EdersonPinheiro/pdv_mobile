@@ -16,14 +16,13 @@ Future<void> main() async {
 Future<void> checkSession() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   userToken = prefs.getString('userToken') ?? 'null';
-  if (userToken.isNotEmpty) {
-    Get.offAll(HomePage());
-  }
 
-  if (userToken.isEmpty || userToken == 'null') {
+  if (userToken == 'null') {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     Get.offAll(const LoginPage());
+  } else {
+    Get.offAll(HomePage());
   }
 }
 

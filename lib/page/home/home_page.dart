@@ -49,7 +49,16 @@ class _HomePageState extends State<HomePage> {
                     : Icons.wifi_off,
                 color: syncController.isConn.value ? Colors.green : Colors.red,
               ),
-              onPressed: () async {},
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                List<String> actionProducts =
+                    prefs.getStringList('actionProducts') ?? [];
+
+                // Iterate over the elements of the actionProducts list and print each element
+                for (String product in actionProducts) {
+                  print("Product: $product");
+                }
+              },
             );
           }),
         ],

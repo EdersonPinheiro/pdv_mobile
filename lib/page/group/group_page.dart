@@ -7,6 +7,7 @@ import 'package:meu_estoque/page/product/edit_product_page.dart';
 
 import '../../controllers/group_controller.dart';
 import '../../controllers/product_controller.dart';
+import '../../controllers/sync/sync_controller.dart';
 import '../../model/group.dart';
 import '../../model/product.dart';
 import 'create_group_page.dart';
@@ -19,22 +20,25 @@ class GroupPage extends StatefulWidget {
 
 class _GroupPageState extends State<GroupPage> {
   final GroupController groupController = Get.put(GroupController());
+  final SyncController syncController = Get.put(SyncController());
   bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    getGroupsOff();
+    syncController.isConn == true ? getGroupsOn() : getGroupsOff();
   }
 
-  List<Product> teste = [];
-  Future<void> getProductsApi() async {
-    groupController.groups = await groupController.getOfflineGroups();
+  void checkConnection() {}
+
+  Future<void> getGroupsOn() async {
+    print("Get Groups On");
+    await groupController.getGroup();
     setState(() {});
-    print("Buscou os dados da api");
   }
 
   Future<void> getGroupsOff() async {
+    print("Get Groups Off");
     await groupController.getOfflineGroups();
     setState(() {});
   }

@@ -15,13 +15,14 @@ import '../model/product.dart';
 class ProductController extends GetxController {
   final dio = new Dio();
   List actioProducts = <Product>[].obs;
-  List products = <Product>[].obs;
+  final RxList<Product> products = <Product>[].obs;
   final id = TextEditingController();
   final localId = TextEditingController();
   final name = TextEditingController();
   final quantity = TextEditingController();
   final group = TextEditingController();
   final description = TextEditingController();
+  final setor = TextEditingController();
 
   Future<void> createProduct(Product product) async {
     try {
@@ -36,10 +37,11 @@ class ProductController extends GetxController {
         ),
         data: {
           "localId": product.localId,
-          //"group": product.group,
+          "group": product.group,
           "name": product.name,
           "description": product.description,
           "quantity": product.quantity,
+          "setor": product.setor
         },
       );
 
@@ -56,7 +58,7 @@ class ProductController extends GetxController {
       productList.add(jsonEncode(product.toJson()));
       prefs.setStringList('offlineProducts', productList);
 
-      products = productList;
+      products.value = productList.cast<Product>();
     } catch (e) {
       print(e);
     }
@@ -72,7 +74,8 @@ class ProductController extends GetxController {
         quantity: int.parse(quantity.text),
         group: group.text,
         description: description.text,
-        setor: '',
+        setor: setor.text,
+        action: 'new'
       );
 
       // Check if localId already exists in offline products
@@ -88,7 +91,7 @@ class ProductController extends GetxController {
       productList.add(jsonEncode(product.toJson()));
       prefs.setStringList('actionProducts', productList);
 
-      products = productList;
+      products.value = productList.cast<Product>();
 
       // Clear the text controllers
       id.clear();
@@ -108,7 +111,7 @@ class ProductController extends GetxController {
   Future<List> getOfflineProducts() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> productList = prefs.getStringList('offlineProducts') ?? [];
-    products = [];
+    products.value = [];
 
     for (String productJsonString in productList) {
       Map<String, dynamic> productJson = jsonDecode(productJsonString);
@@ -225,7 +228,7 @@ class ProductController extends GetxController {
     }
   }
 
-  Future<List> getProducts() async {
+  Future<List<Product>> getProducts() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userToken = prefs.getString('userToken') ?? 'null';
     dio.options.headers = {
@@ -238,13 +241,13 @@ class ProductController extends GetxController {
       final response = await dio.post('$b4a/get-all-products');
 
       if (response.data["result"] != null) {
-        products = (response.data["result"] as List)
+        products.value = (response.data["result"] as List)
             .map((data) => Product.fromJson(data))
             .toList();
       }
     } catch (e) {
       print(e);
     }
-    return products;
+    return products.value;
   }
 }

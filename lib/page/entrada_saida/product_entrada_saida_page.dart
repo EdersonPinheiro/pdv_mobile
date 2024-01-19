@@ -171,23 +171,45 @@ class _ProductEntradaSaidaPageState extends State<ProductEntradaSaidaPage> {
                       Row(
                         children: [
                           Expanded(
-                              child: buttonDisable == false
-                                  ? ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.red),
-                                      child: const Text('Saída'),
-                                      onPressed: () async {
-                                        if (_formKey.currentState!.validate()) {
+                            child: buttonDisable == false
+                                ? ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red,
+                                    ),
+                                    child: const Text('Saída'),
+                                    onPressed: () async {
+                                      if (_formKey.currentState!.validate()) {
+                                        int outputQuantity = int.parse(
+                                            controllerProduct.quantity.text);
+
+                                        if (outputQuantity >
+                                            widget.product.quantity) {
+                                          // Display a message if the quantity is insufficient
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                  'Produto não possui quantidade suficiente em estoque.'),
+                                              duration: Duration(seconds: 2),
+                                            ),
+                                          );
+                                        } else {
+                                          // Proceed with the output if the quantity is sufficient
                                           await newMoviment("Saida");
                                           widget.reload();
                                           Get.back();
                                         }
-                                      })
-                                  : ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.grey),
-                                      child: const Text('Saída'),
-                                      onPressed: () async {})),
+                                      }
+                                    },
+                                  )
+                                : ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.grey,
+                                    ),
+                                    child: const Text('Saída'),
+                                    onPressed: () async {},
+                                  ),
+                          ),
                           const SizedBox(width: 32),
                           Expanded(
                             child: buttonDisable == true
@@ -199,16 +221,19 @@ class _ProductEntradaSaidaPageState extends State<ProductEntradaSaidaPage> {
                                         widget.reload();
                                         Get.back();
                                       }
-                                    })
+                                    },
+                                  )
                                 : ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.grey),
+                                      backgroundColor: Colors.grey,
+                                    ),
                                     child: const Text('Entrada'),
-                                    onPressed: () async {}),
+                                    onPressed: () async {},
+                                  ),
                           ),
                           /*_bannerAd != null
-                              ? Container(child: AdWidget(ad: _bannerAd!))
-                              : Container()*/
+        ? Container(child: AdWidget(ad: _bannerAd!))
+        : Container()*/
                         ],
                       ),
                     ],

@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../controllers/group_controller.dart';
 import '../../controllers/product_controller.dart';
+import '../../controllers/sync/sync_controller.dart';
 import '../../model/product.dart';
 
 class CreateProductPage extends StatefulWidget {
@@ -19,6 +21,8 @@ class CreateProductPage extends StatefulWidget {
 class _CreateProductPageState extends State<CreateProductPage> {
   final ProductController controller = Get.put(ProductController());
   final GroupController groupController = Get.put(GroupController());
+  final SyncController syncController = Get.put(SyncController());
+  
   final Dio dio = Dio();
   final _formKey = GlobalKey<FormState>();
   static const uuid = Uuid();
@@ -122,17 +126,23 @@ class _CreateProductPageState extends State<CreateProductPage> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                         onPressed: () async {
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          controller.setor.text = prefs.getString('setor').toString();
                           const uuid = Uuid();
                           final newProduct = Product(
                             id: '',
                             localId: uuid.v4(),
                             name: controller.name.text,
+                            group: _selectedGroup.toString(),
                             quantity: int.parse(controller.quantity.text),
                             description: controller.description.text,
-                            group: controller.group.text,
-                            setor: '',
+                            setor: controller.setor.text,
+                            action: 'new'
                           );
-                          controller.createProductOffline(newProduct);
+                          syncController.isConn == true
+                              ? controller.createProduct(newProduct)
+                              : createProductOffline(newProduct);
+
                           Get.back();
                           widget.reload();
                         },
@@ -145,5 +155,10 @@ class _CreateProductPageState extends State<CreateProductPage> {
         ),
       ),
     );
+  }
+
+  Future<void> createProductOffline(Product newProduct) async {
+    controller.createProductOffline(newProduct);
+    controller.createActionProductOffline(newProduct);
   }
 }

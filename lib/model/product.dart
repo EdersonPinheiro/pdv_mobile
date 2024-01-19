@@ -28,6 +28,7 @@ class Product {
       'group': group,
       'description': description,
       'setor': setor,
+      'action': action
     };
   }
 
