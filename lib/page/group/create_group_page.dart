@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../controllers/group_controller.dart';
 import '../../controllers/product_controller.dart';
+import '../../controllers/sync/sync_controller.dart';
 import '../../model/group.dart';
 import '../../model/product.dart';
 
@@ -20,6 +21,7 @@ class CreateGroupPage extends StatefulWidget {
 
 class _CreateGroupPageState extends State<CreateGroupPage> {
   GroupController controller = new GroupController();
+  final SyncController syncController = Get.put(SyncController());
   final Dio dio = Dio();
   final _formKey = GlobalKey<FormState>();
   static const uuid = Uuid();
@@ -63,18 +65,21 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                         onPressed: () async {
-                          SharedPreferences prefs = await SharedPreferences.getInstance();
-                          controller.setor.text = prefs.getString('setor').toString();
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          controller.setor.text =
+                              prefs.getString('setor').toString();
                           const uuid = Uuid();
                           final newGroup = Group(
-                            id: '',
-                            localId: uuid.v4(),
-                            name: controller.name.text,
-                            description: controller.description.text,
-                            setor: controller.setor.text,
-                            action: 'new'
-                          );
-                          controller.createGroupOffline(newGroup);
+                              id: '',
+                              localId: uuid.v4(),
+                              name: controller.name.text,
+                              description: controller.description.text,
+                              setor: controller.setor.text,
+                              action: 'new');
+                          syncController.isConn == true
+                              ? controller.createGroup(newGroup)
+                              : createGroupOffline(newGroup);
                           Get.back();
                           widget.reload();
                         },

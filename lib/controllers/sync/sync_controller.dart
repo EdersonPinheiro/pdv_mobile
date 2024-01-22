@@ -34,7 +34,7 @@ class SyncController extends GetxController {
 
           if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
             isConn.value = true;
-            await syncOfflineProducts();
+            await syncOfflineGroups();
             await apiMethod();
           } else {
             isConn.value = false;
@@ -75,7 +75,7 @@ class SyncController extends GetxController {
 
   Future<void> syncOfflineGroups() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> offlineGroups = prefs.getStringList('offlineGroups') ?? [];
+    List<String> offlineGroups = prefs.getStringList('actionGroups') ?? [];
 
     // Create a copy of the list to avoid ConcurrentModificationError
     List<String> copyOfOfflineGroups = List.from(offlineGroups);
@@ -87,10 +87,8 @@ class SyncController extends GetxController {
       // Adjust the condition based on your requirements
       if (group.action == "new") {
         await groupController.createGroup(group);
-      } else if (group.action == "edit") {
-        await groupController.editGroupOffline(group);
-      } else if (group.action == "delete") {
-        await groupController.deleteGroupOffline(group);
+      } else {
+        print(group.action);
       }
 
       // Remove the group from the original list of offline groups after synchronization

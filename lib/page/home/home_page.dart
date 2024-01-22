@@ -52,11 +52,11 @@ class _HomePageState extends State<HomePage> {
               onPressed: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 List<String> actionProducts =
-                    prefs.getStringList('actionProducts') ?? [];
+                    prefs.getStringList('actionGroups') ?? [];
 
                 // Iterate over the elements of the actionProducts list and print each element
-                for (String product in actionProducts) {
-                  print("Product: $product");
+                for (String group in actionProducts) {
+                  print("Group: $group");
                 }
               },
             );

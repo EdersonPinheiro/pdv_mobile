@@ -29,7 +29,10 @@ class _GroupPageState extends State<GroupPage> {
     syncController.isConn == true ? getGroupsOn() : getGroupsOff();
   }
 
-  void checkConnection() {}
+  void checkConnection() {
+    syncController.isConn == true ? getGroupsOn() : getGroupsOff();
+  }
+  
 
   Future<void> getGroupsOn() async {
     print("Get Groups On");

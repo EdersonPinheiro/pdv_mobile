@@ -54,7 +54,7 @@ class GroupController extends GetxController {
 
     try {
       final response = await Dio().post(
-        'https://parseapi.back4app.com/parse/functions/create-group',
+        '$b4a/create-group',
         options: Options(
           headers: {
             'X-Parse-Application-Id': KeyApplicationId,
