@@ -35,7 +35,12 @@ class GroupController extends GetxController {
             .map((data) => Group.fromJson(data))
             .toList();
 
-        // Save the group information in SharedPreferences
+        // Save the group information in 'offlineGroups' key in SharedPreferences
+        List<String> offlineGroups =
+            groups.map((group) => jsonEncode(group.toJson())).toList();
+        prefs.setStringList('offlineGroups', offlineGroups);
+
+        // Save the selected group name in SharedPreferences
         prefs.setString(
             'selectedGroup', groups.isNotEmpty ? groups[0].name : '');
 
@@ -87,6 +92,29 @@ class GroupController extends GetxController {
 
         prefs.setStringList('offlineGroups', groupList);
       }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> editGroup(Group group) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString('userToken');
+    try {
+      final response = await Dio().post('$b4a/change-group',
+          options: Options(
+            headers: {
+              'X-Parse-Application-Id': KeyApplicationId,
+              'X-Parse-REST-API-Key': KeyClientKey,
+              'X-Parse-Session-Token': '${userToken}',
+            },
+          ),
+          data: {
+            "id": group.id,
+            "name": group.name,
+            "description": group.description,
+          });
+      Group.fromJson(response.data['result']);
     } catch (e) {
       print(e);
     }
@@ -161,7 +189,7 @@ class GroupController extends GetxController {
     }
   }
 
-  Future<void> createActionGroupOffline(Group group) async {
+  Future<void> createActionGroupOffline(Group group, action) async {
     try {
       // Create a new Group instance with the input values
       Group newGroup = Group(
@@ -170,7 +198,7 @@ class GroupController extends GetxController {
         name: group.name,
         description: group.description,
         setor: group.setor,
-        action: 'new',
+        action: action,
       );
 
       // Check if localId already exists in offline groups

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../controllers/group_controller.dart';
+import '../../controllers/sync/sync_controller.dart';
 import '../../model/group.dart';
 
 class EditGroupPage extends StatefulWidget {
@@ -16,6 +18,8 @@ class EditGroupPage extends StatefulWidget {
 
 class _EditGroupPageState extends State<EditGroupPage> {
   GroupController controller = GroupController();
+  final SyncController syncController = Get.put(SyncController());
+  
   @override
   void initState() {
     super.initState();
@@ -74,12 +78,16 @@ class _EditGroupPageState extends State<EditGroupPage> {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () async {
+                              SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          controller.setor.text =
+                              prefs.getString('setor').toString();
                               final newGroup = Group(
                                 id: widget.group.id,
                                 localId: widget.group.localId,
                                 name: controller.name.text,
                                 description: controller.description.text,
-                                setor: '',
+                                setor: controller.setor.text,
                               );
                               await controller.deleteGroupOffline(newGroup);
                               widget.reload();
@@ -101,14 +109,21 @@ class _EditGroupPageState extends State<EditGroupPage> {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () async {
+                              SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          controller.setor.text =
+                              prefs.getString('setor').toString();
                               final newGroup = Group(
                                 id: widget.group.id,
                                 localId: widget.group.localId,
                                 name: controller.name.text,
                                 description: controller.description.text,
-                                setor: '',
+                                setor: controller.setor.text,
+                                action: 'edit'
                               );
-                              await controller.editGroupOffline(newGroup);
+                              syncController.isConn == true
+                              ? controller.editGroup(newGroup)
+                              : editGroupOffline(newGroup);
                               widget.reload();
                               Get.back();
                             },
@@ -125,5 +140,10 @@ class _EditGroupPageState extends State<EditGroupPage> {
         ),
       ),
     );
+  }
+
+  Future<void> editGroupOffline(Group newGroup) async {
+    controller.editGroupOffline(newGroup);
+    controller.createActionGroupOffline(newGroup, "edit");
   }
 }

@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../constants/constants.dart';
 import '../../model/group.dart';
 import '../../model/product.dart';
 import '../group_controller.dart';
@@ -22,25 +20,31 @@ class SyncController extends GetxController {
     checkConnection(apiMethod);
   }
 
-  apiMethod() {}
+  apiMethod() async {
+    await syncOfflineGroups();
+    await syncOfflineProducts();
+    // Add any additional synchronization methods here
+
+    // Clear the lists of actions after synchronization
+    clearOfflineGroups();
+    clearOfflineProducts();
+  }
 
   Future<void> checkConnection(apiMethod) async {
     internetConnectionHook.startListening();
     try {
       internetConnectionHook.isConnected.listen((isConnected) async {
         if (isConnected) {
-          // Se houver conexão, faça a chamada para a API de dados
           dynamic result = await InternetAddress.lookup("www.google.com");
 
           if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
             isConn.value = true;
-            await syncOfflineGroups();
             await apiMethod();
           } else {
             isConn.value = false;
           }
         } else {
-          print("Nada para sincronizar");
+          print("No internet connection. Nothing to synchronize.");
           isConn.value = false;
         }
       });
@@ -63,6 +67,8 @@ class SyncController extends GetxController {
 
       if (product.action == "new") {
         await productController.createProduct(product);
+      } else if (product.action == "edit") {
+        print("");
       }
 
       // Remove the product from the original list of actions after synchronization
@@ -87,8 +93,8 @@ class SyncController extends GetxController {
       // Adjust the condition based on your requirements
       if (group.action == "new") {
         await groupController.createGroup(group);
-      } else {
-        print(group.action);
+      } else if (group.action == "edit") {
+        await groupController.editGroup(group);
       }
 
       // Remove the group from the original list of offline groups after synchronization
@@ -96,6 +102,16 @@ class SyncController extends GetxController {
     }
 
     // Update the list of offline groups in SharedPreferences after synchronization
-    prefs.setStringList('offlineGroups', offlineGroups);
+    prefs.setStringList('actionGroups', offlineGroups);
+  }
+
+  void clearOfflineProducts() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('actionProducts');
+  }
+
+  void clearOfflineGroups() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('actionGroups');
   }
 }

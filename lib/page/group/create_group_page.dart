@@ -96,6 +96,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
   Future<void> createGroupOffline(Group newGroup) async {
     controller.createGroupOffline(newGroup);
-    controller.createActionGroupOffline(newGroup);
+    controller.createActionGroupOffline(newGroup, "new");
   }
 }

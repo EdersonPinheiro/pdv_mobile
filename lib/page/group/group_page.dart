@@ -29,7 +29,7 @@ class _GroupPageState extends State<GroupPage> {
     syncController.isConn == true ? getGroupsOn() : getGroupsOff();
   }
 
-  void checkConnection() {
+  Future <void> checkConnection() async {
     syncController.isConn == true ? getGroupsOn() : getGroupsOff();
   }
   
@@ -37,13 +37,13 @@ class _GroupPageState extends State<GroupPage> {
   Future<void> getGroupsOn() async {
     print("Get Groups On");
     await groupController.getGroup();
-    setState(() {});
+   
   }
 
   Future<void> getGroupsOff() async {
     print("Get Groups Off");
     await groupController.getOfflineGroups();
-    setState(() {});
+    
   }
 
   @override
@@ -54,7 +54,7 @@ class _GroupPageState extends State<GroupPage> {
         centerTitle: true,
       ),
       body: RefreshIndicator(
-        onRefresh: getGroupsOff,
+        onRefresh: checkConnection,
         child: Obx(() => ListView.builder(
               itemCount: groupController.groups.length,
               itemBuilder: (BuildContext context, int index) {
@@ -79,7 +79,7 @@ class _GroupPageState extends State<GroupPage> {
                         icon: const Icon(Icons.edit),
                         onPressed: () async {
                           Get.to(EditGroupPage(
-                              group: group, reload: getGroupsOff));
+                              group: group, reload: checkConnection));
                         },
                       ),
                     ),
@@ -91,7 +91,7 @@ class _GroupPageState extends State<GroupPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Get.to(CreateGroupPage(
-            reload: getGroupsOff,
+            reload: checkConnection,
           ));
         },
         child: const Icon(Icons.add),
