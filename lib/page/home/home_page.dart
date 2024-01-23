@@ -1,6 +1,7 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:meu_estoque/page/payment/stripe_payment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../controllers/sync/sync_controller.dart';
@@ -130,7 +131,7 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                     onTap: () {
-                      Get.to(PaymentPage());
+                      Get.to(StripePayment());
                     },
                   ),
                   SizedBox(height: 20),
