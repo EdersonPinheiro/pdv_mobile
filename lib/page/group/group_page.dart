@@ -43,7 +43,6 @@ class _GroupPageState extends State<GroupPage> {
   Future<void> getGroupsOff() async {
     print("Get Groups Off");
     await groupController.getOfflineGroups();
-    
   }
 
   @override

@@ -17,20 +17,10 @@ class SyncController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    checkConnection(apiMethod);
+    checkConnection(sync);
   }
 
-  apiMethod() async {
-    await syncOfflineGroups();
-    await syncOfflineProducts();
-    // Add any additional synchronization methods here
-
-    // Clear the lists of actions after synchronization
-    clearOfflineGroups();
-    clearOfflineProducts();
-  }
-
-  Future<void> checkConnection(apiMethod) async {
+  Future<void> checkConnection(teste) async {
     internetConnectionHook.startListening();
     try {
       internetConnectionHook.isConnected.listen((isConnected) async {
@@ -39,7 +29,7 @@ class SyncController extends GetxController {
 
           if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
             isConn.value = true;
-            await apiMethod();
+            await sync();
           } else {
             isConn.value = false;
           }
@@ -54,55 +44,66 @@ class SyncController extends GetxController {
     }
   }
 
-  Future<void> syncOfflineProducts() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> actionProducts = prefs.getStringList('actionProducts') ?? [];
+  sync() async {
+    await syncOfflineItems<Group>(
+      'actionGroups',
+      (group) async {
+        await groupController.createGroup(group);
+      },
+      (group) async {
+        await groupController.editGroup(group);
+      },
+    );
 
-    // Create a copy of the list to avoid ConcurrentModificationError
-    List<String> copyOfActionProducts = List.from(actionProducts);
-
-    for (String productString in copyOfActionProducts) {
-      Map<String, dynamic> productMap = jsonDecode(productString);
-      Product product = Product.fromJson(productMap);
-
-      if (product.action == "new") {
-        await productController.createProduct(product);
-      } else if (product.action == "edit") {
-        print("");
-      }
-
-      // Remove the product from the original list of actions after synchronization
-      actionProducts.remove(productString);
-    }
-
-    // Update the list of actions in SharedPreferences after synchronization
-    prefs.setStringList('actionProducts', actionProducts);
+    clearOfflineGroups();
+    clearOfflineProducts();
   }
 
-  Future<void> syncOfflineGroups() async {
+  Future<void> syncOfflineItems<T>(
+    String actionKey,
+    void Function(T) createItem,
+    void Function(T) editItem,
+  ) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> offlineGroups = prefs.getStringList('actionGroups') ?? [];
+    List<String> offlineItems = prefs.getStringList(actionKey) ?? [];
 
     // Create a copy of the list to avoid ConcurrentModificationError
-    List<String> copyOfOfflineGroups = List.from(offlineGroups);
+    List<String> copyOfOfflineItems = List.from(offlineItems);
 
-    for (String groupString in copyOfOfflineGroups) {
-      Map<String, dynamic> groupJson = jsonDecode(groupString);
-      Group group = Group.fromJson(groupJson);
+    for (String itemString in copyOfOfflineItems) {
+      Map<String, dynamic> itemJson = jsonDecode(itemString);
+      T item = _createItemFromJson<T>(itemJson);
 
-      // Adjust the condition based on your requirements
-      if (group.action == "new") {
-        await groupController.createGroup(group);
-      } else if (group.action == "edit") {
-        await groupController.editGroup(group);
+      if (item is Group) {
+        if (item.action == "new") {
+          createItem(item);
+        } else if (item.action == "edit") {
+          editItem(item);
+        }
+      } else if (item is Product) {
+        if (item.action == "new") {
+          createItem(item);
+        } else if (item.action == "edit") {
+          editItem(item);
+        }
       }
 
-      // Remove the group from the original list of offline groups after synchronization
-      offlineGroups.remove(groupString);
+      // Remove the item from the original list of offline items after synchronization
+      offlineItems.remove(itemString);
     }
 
-    // Update the list of offline groups in SharedPreferences after synchronization
-    prefs.setStringList('actionGroups', offlineGroups);
+    // Update the list of offline items in SharedPreferences after synchronization
+    prefs.setStringList(actionKey, offlineItems);
+  }
+
+  T _createItemFromJson<T>(Map<String, dynamic> itemJson) {
+    if (T == Group) {
+      return Group.fromJson(itemJson) as T;
+    } else if (T == Product) {
+      return Product.fromJson(itemJson) as T;
+    }
+    // Handle other types if needed
+    throw ArgumentError("Unsupported type");
   }
 
   void clearOfflineProducts() async {
