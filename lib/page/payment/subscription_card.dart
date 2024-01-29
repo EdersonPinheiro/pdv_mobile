@@ -38,7 +38,10 @@ class SubscriptionCard extends StatelessWidget {
                   ),
                 ],
               ),
-              Text(description),
+              Text(
+                description,
+                style: TextStyle(fontSize: 20),
+              ),
               // Display the list of widgets using a Column
               Column(
                 children: widgets,

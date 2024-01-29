@@ -6,6 +6,7 @@ import 'package:meu_estoque/page/product/create_product_page.dart';
 import 'package:meu_estoque/page/product/edit_product_page.dart';
 
 import '../../controllers/product_controller.dart';
+import '../../controllers/sync/sync_controller.dart';
 import '../../model/product.dart';
 
 class ProductsPage extends StatefulWidget {
@@ -15,18 +16,19 @@ class ProductsPage extends StatefulWidget {
 
 class _ProductPageState extends State<ProductsPage> {
   final ProductController productController = Get.put(ProductController());
+  final SyncController syncController = Get.put(SyncController());
   bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    getProductsOff();
+    syncController.isConn == true ? getProductsApi() : getProductsOff();
   }
 
   List<Product> teste = [];
   Future<void> getProductsApi() async {
     productController.products.value =
-        (await productController.getProducts()) as List<Product>;
+        await productController.getProducts();
     setState(() {});
     print("Buscou os dados da api");
   }

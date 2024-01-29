@@ -37,7 +37,9 @@ dependencies:
   event_bus:
   get_it:
   animated_text_kit:
-  webview_flutter: 3.0.4
+  pdf:
+  path_provider:
+  open_file_plus:
 
 
   # The following adds the Cupertino Icons font to your application.

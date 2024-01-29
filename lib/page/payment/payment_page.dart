@@ -1,8 +1,6 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:meu_estoque/page/payment/stripe_payment.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'subscription_card.dart';
 
 class PaymentPage extends StatefulWidget {
@@ -52,7 +50,7 @@ class _PaymentPageState extends State<PaymentPage>
                   width: width,
                   child: SubscriptionCard(
                     title: "Premium",
-                    description: '',
+                    description: 'R\$ 29,99',
                     widgets: [
                       _buildListItem(
                           "Criação de Produtos - Ilimitado", Colors.green),
@@ -74,7 +72,7 @@ class _PaymentPageState extends State<PaymentPage>
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Get.offAll(StripePayment());
+                    //Get.offAll(StripePayment());
                   },
                   child: AnimatedTextKit(
                     animatedTexts: [

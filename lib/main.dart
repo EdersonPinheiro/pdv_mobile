@@ -8,6 +8,7 @@ import 'controllers/sync/sync_controller.dart';
 import 'page/home/home_page.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   Get.put(SyncController());
   runApp(const MyApp());
   checkSession();

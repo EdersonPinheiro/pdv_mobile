@@ -1,7 +1,7 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:meu_estoque/page/payment/stripe_payment.dart';
+import 'package:meu_estoque/page/relatorios/relatorio_estoque_atual.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../controllers/sync/sync_controller.dart';
@@ -51,14 +51,15 @@ class _HomePageState extends State<HomePage> {
                 color: syncController.isConn.value ? Colors.green : Colors.red,
               ),
               onPressed: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
+                /*SharedPreferences prefs = await SharedPreferences.getInstance();
                 List<String> actionProducts =
                     prefs.getStringList('actionGroups') ?? [];
 
                 // Iterate over the elements of the actionProducts list and print each element
                 for (String group in actionProducts) {
                   print("Group: $group");
-                }
+                }*/
+                Get.to(RelatorioEstoqueAtual());
               },
             );
           }),
@@ -131,7 +132,7 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                     onTap: () {
-                      Get.to(StripePayment());
+                      Get.to(PaymentPage());
                     },
                   ),
                   SizedBox(height: 20),

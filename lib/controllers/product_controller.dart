@@ -68,15 +68,14 @@ class ProductController extends GetxController {
     try {
       // Create a new Product instance with the input values
       Product newProduct = Product(
-        id: id.text,
-        localId: localId.text,
-        name: name.text,
-        quantity: int.parse(quantity.text),
-        group: group.text,
-        description: description.text,
-        setor: setor.text,
-        action: 'new'
-      );
+          id: id.text,
+          localId: localId.text,
+          name: name.text,
+          quantity: int.parse(quantity.text),
+          group: group.text,
+          description: description.text,
+          setor: setor.text,
+          action: 'new');
 
       // Check if localId already exists in offline products
       if (actioProducts
@@ -241,9 +240,15 @@ class ProductController extends GetxController {
       final response = await dio.post('$b4a/get-all-products');
 
       if (response.data["result"] != null) {
-        products.value = (response.data["result"] as List)
+        List<Product> products = (response.data["result"] as List)
             .map((data) => Product.fromJson(data))
             .toList();
+
+        List<String> offlineProducts =
+            products.map((product) => jsonEncode(product.toJson())).toList();
+        prefs.setStringList('offlineProducts', offlineProducts);
+
+        this.products.value = products;
       }
     } catch (e) {
       print(e);
