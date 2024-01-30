@@ -40,6 +40,7 @@ dependencies:
   pdf:
   path_provider:
   open_file_plus:
+  parse_server_sdk_flutter:
 
 
   # The following adds the Cupertino Icons font to your application.

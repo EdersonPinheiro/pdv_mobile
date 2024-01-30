@@ -115,6 +115,8 @@ class _HomePageState extends State<HomePage> {
                     title: Text('Meu Perfil'),
                     onTap: () {},
                   ),
+                  IconButton(
+                      onPressed: () {}, icon: Icon(user.premium == true ? Icons.workspace_premium : Icons.highlight_off_rounded)),
                   ListTile(
                     title: AnimatedTextKit(
                       animatedTexts: [

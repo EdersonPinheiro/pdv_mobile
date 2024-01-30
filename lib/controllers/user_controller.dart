@@ -32,6 +32,7 @@ class UserController {
           prefs.setString('userFullname', users[0].fullname);
           prefs.setString('userEmail', users[0].email);
           prefs.setString('userSetor', users[0].setor);
+          prefs.setString('premium', users[0].premium.toString());
         }
 
         userL.value = users;

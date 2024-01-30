@@ -1,6 +1,7 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:meu_estoque/controllers/checkout_controller.dart';
 import 'subscription_card.dart';
 
 class PaymentPage extends StatefulWidget {
@@ -14,6 +15,7 @@ class _PaymentPageState extends State<PaymentPage>
     with SingleTickerProviderStateMixin {
   var height, width;
   late TabController _tabController;
+  final CheckoutController checkoutController = Get.put(CheckoutController());
 
   @override
   void initState() {
@@ -72,7 +74,7 @@ class _PaymentPageState extends State<PaymentPage>
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    //Get.offAll(StripePayment());
+                    checkoutController.checkout();
                   },
                   child: AnimatedTextKit(
                     animatedTexts: [
