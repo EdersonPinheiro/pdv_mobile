@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants/constants.dart';
 import '../../controllers/auth_controller.dart';
+import '../../controllers/sync/sync_controller.dart';
 import 'create_account_page.dart';
 import 'reset_password.dart';
 
@@ -18,14 +19,14 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final authController = AuthController();
   final _formKey = GlobalKey<FormState>();
-  String errorMessage = ''; // Variável para armazenar a mensagem de erro
+  String errorMessage = '';
+  bool isLoading = false;
+  final SyncController syncController = Get.put(SyncController());
 
   @override
   void initState() {
     super.initState();
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -125,22 +126,64 @@ class _LoginPageState extends State<LoginPage> {
                       child: ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            print(authController.emailController.text);
-                            print(authController.passwordController.text);
-                            bool success = await authController.login(
-                              authController.emailController.text,
-                              authController.passwordController.text,
-                            );
-                            if (!success) {
+                            setState(() {
+                              errorMessage = ''; // Limpar a mensagem de erro
+                              isLoading =
+                                  true; // Iniciar o indicador de carregamento
+                            });
+
+                            if (syncController.isConn == true) {
+                              bool success = await authController.login(
+                                authController.emailController.text,
+                                authController.passwordController.text,
+                              );
+
                               setState(() {
-                                errorMessage = 'E-mail ou senha incorretos';
+                                isLoading =
+                                    false; // Parar o indicador de carregamento
                               });
-                            } else if (success) {
-                              Get.off( SplashScreenPage());
+
+                              if (!success) {
+                                setState(() {
+                                  errorMessage = 'E-mail ou senha incorretos';
+                                });
+                              } else {
+                                setState(() {
+                                  isLoading = false;
+                                });
+                                Get.off(SplashScreenPage());
+                              }
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text('Sem Conexão'),
+                                  content: Text(
+                                      'Você precisa se conectar à internet para entrar no app.'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text('OK'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                              setState(() {
+                                isLoading = false;
+                              });
                             }
                           }
                         },
-                        child: const Text('Entrar'),
+                        child: isLoading
+                            ? Container(
+                                width: 10,
+                                height: 10,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ))
+                            : const Text('Entrar'),
                       ),
                     ),
                   ],

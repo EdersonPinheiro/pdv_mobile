@@ -9,6 +9,7 @@ import '../../controllers/user_controller.dart';
 import '../../model/user.dart';
 import '../auth/login_page.dart';
 import '../payment/payment_page.dart';
+import '../relatorios/relatorio_page.dart';
 import 'components/button.dart';
 import '../entrada_saida/entrada_saida_page.dart';
 import '../group/group_page.dart';
@@ -28,7 +29,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    userController.getUser();
+    
   }
 
   @override
@@ -87,6 +88,16 @@ class _HomePageState extends State<HomePage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    otherAccountsPictures: [
+                      IconButton(
+                          onPressed: () {},
+                          icon: Icon(
+                            user.premium == true
+                                ? Icons.workspace_premium
+                                : Icons.highlight_off_rounded,
+                            color: Colors.orange[400],
+                          )),
+                    ],
                     accountEmail: Text(
                       user.email,
                       style: TextStyle(
@@ -115,28 +126,34 @@ class _HomePageState extends State<HomePage> {
                     title: Text('Meu Perfil'),
                     onTap: () {},
                   ),
-                  IconButton(
-                      onPressed: () {}, icon: Icon(user.premium == true ? Icons.workspace_premium : Icons.highlight_off_rounded)),
                   ListTile(
-                    title: AnimatedTextKit(
-                      animatedTexts: [
-                        ColorizeAnimatedText(
-                          "Premium",
-                          textStyle: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 15),
-                          speed: const Duration(milliseconds: 150),
-                          colors: [
-                            Colors.orange,
-                            Colors.amber,
-                            Colors.white
-                          ], // Ajuste a velocidade conforme necessário
-                        ),
-                      ],
-                    ),
+                    title: Text('Relatorios'),
                     onTap: () {
-                      Get.to(PaymentPage());
+                      Get.to(RelatoriosPage());
                     },
                   ),
+                  user.premium == true
+                      ? Container()
+                      : ListTile(
+                          title: AnimatedTextKit(
+                            animatedTexts: [
+                              ColorizeAnimatedText(
+                                "Premium",
+                                textStyle: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 15),
+                                speed: const Duration(milliseconds: 150),
+                                colors: [
+                                  Colors.orange,
+                                  Colors.amber,
+                                  Colors.white
+                                ], // Ajuste a velocidade conforme necessário
+                              ),
+                            ],
+                          ),
+                          onTap: () {
+                            Get.to(PaymentPage());
+                          },
+                        ),
                   SizedBox(height: 20),
                   ListTile(
                     title: Text('Sair'),

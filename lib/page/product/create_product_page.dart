@@ -103,7 +103,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
                       },
                       items: _groupList.map((group) {
                         return DropdownMenuItem<String>(
-                          value: group.localId,
+                          value: group.id ?? group.localId,
                           child: Text(group.name),
                         );
                       }).toList(),

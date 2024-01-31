@@ -55,6 +55,16 @@ class SyncController extends GetxController {
       },
     );
 
+    await syncOfflineItems<Product>(
+      'actionProducts',
+      (product) async {
+        await productController.createProduct(product);
+      },
+      (product) async {
+        await productController.changeProduct(product);
+      },
+    );
+
     clearOfflineGroups();
     clearOfflineProducts();
   }

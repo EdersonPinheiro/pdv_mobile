@@ -92,6 +92,7 @@ class _CreateTypeMovimentPageState extends State<CreateTypeMovimentPage> {
                     );
                     await typeMovimentController
                         .createTypeMovimentOffline(newTypeMoviment);
+                    typeMovimentController.name.clear();
                     Get.back();
                     widget.reload();
                   }

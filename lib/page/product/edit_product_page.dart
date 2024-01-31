@@ -78,7 +78,9 @@ class _EditProductPageState extends State<EditProductPage> {
                       },
                     ),
                     DropdownButtonFormField(
-                      value: _selectedGroup == null ? controller.group.text : _selectedGroup,
+                      value: _selectedGroup == null
+                          ? controller.group.text
+                          : _selectedGroup,
                       onChanged: (String? value) {
                         print("Dropdown onChanged triggered");
                         print("Selected Value: $value");
@@ -92,7 +94,7 @@ class _EditProductPageState extends State<EditProductPage> {
                       },
                       items: _groupList.map((group) {
                         return DropdownMenuItem<String>(
-                          value: group.localId,
+                          value: group.id ?? group.localId,
                           child: Text(group.name),
                         );
                       }).toList(),
@@ -172,5 +174,10 @@ class _EditProductPageState extends State<EditProductPage> {
         ),
       ),
     );
+  }
+
+  Future<void> editProductOffline(Product newProduct) async {
+    controller.createProductOffline(newProduct);
+    controller.createActionProductOffline(newProduct);
   }
 }

@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'constants/constants.dart';
 import 'controllers/sync/sync_controller.dart';
 import 'page/home/home_page.dart';
+import 'page/splash/splash_screen_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,46 +18,26 @@ Future<void> main() async {
     liveQueryUrl: 'wss://mystockcloneapp.b4a.io',
     debug: true,
   );
-  Get.put(SyncController());
-  runApp(const MyApp());
-  checkSession();
+  runApp(MyApp());
 }
 
-Future<void> checkSession() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  userToken = prefs.getString('userToken') ?? 'null';
-
-  if (userToken == 'null') {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    Get.offAll(const LoginPage());
-  } else {
-    Get.offAll(HomePage());
-  }
-}
-
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Meu Estoque',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-        useMaterial3: false,
-      ),
-      getPages: [
-        GetPage(name: '/products_page', page: () => ProductsPage()),
-        // ... outras rotas
-      ],
-      home: GetBuilder<SyncController>(
-        init: SyncController(),
-        builder: (_) {
-          return LoginPage();
-        },
-      ),
-    );
+        title: 'Meu Estoque',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+          useMaterial3: false,
+        ),
+        home: SplashScreenPage());
   }
 }

@@ -20,9 +20,8 @@ class User {
       id: json['objectId'],
       fullname: json['fullname'],
       email: json['email'],
-      setor: setor['name'], // Assign 'name' from 'setor' map to 'setorName'
-      premium:
-          setor['premium'], // Assign 'premium' from 'setor' map to 'premium'
+      setor: setor['name'],
+      premium: setor['premium'] is bool ? setor['premium'] : bool.tryParse(setor['premium'].toString()) ?? false,
     );
   }
 }

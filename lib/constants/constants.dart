@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-String userToken = '';
+late String userToken;
 String fullname = '';
 String setor = '';
 const b4a = 'https://parseapi.back4app.com/parse/functions';
