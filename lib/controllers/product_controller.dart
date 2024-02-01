@@ -64,7 +64,50 @@ class ProductController extends GetxController {
     }
   }
 
-  Future<void> createActionProductOffline(Product product) async {
+  Future<void> editProductOffline(Product editedProduct) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      List<String> productList = prefs.getStringList('offlineProducts') ?? [];
+
+      for (int i = 0; i < productList.length; i++) {
+        Map<String, dynamic> productJson = jsonDecode(productList[i]);
+        if (productJson['localId'] == editedProduct.localId) {
+          // Atualiza as propriedades do produto com base nas alterações
+          productJson['name'] = editedProduct.name;
+          productJson['description'] = editedProduct.description;
+          productJson['group'] = editedProduct.group;
+
+          // Atualiza o produto na lista
+          productList[i] = jsonEncode(productJson);
+          break; // Sai do loop, pois encontrou o produto
+        }
+      }
+
+      // Salva a lista atualizada no shared_preferences
+      prefs.setStringList('offlineProducts', productList);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> deleteProductOffline(Product product) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      List<String> productList = prefs.getStringList('offlineProducts') ?? [];
+
+      // Remove o produto da lista offline
+      productList.removeWhere((productJsonString) {
+        Map<String, dynamic> productJson = jsonDecode(productJsonString);
+        return productJson['localId'] == product.localId;
+      });
+
+      prefs.setStringList('offlineProducts', productList);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> createActionProductOffline(Product product, action) async {
     try {
       // Create a new Product instance with the input values
       Product newProduct = Product(
@@ -75,7 +118,7 @@ class ProductController extends GetxController {
           group: group.text,
           description: description.text,
           setor: setor.text,
-          action: 'new');
+          action: action);
 
       // Check if localId already exists in offline products
       if (actioProducts
@@ -121,50 +164,6 @@ class ProductController extends GetxController {
     return products;
   }
 
-  Future<void> editProductOffline(Product editedProduct) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> productList = prefs.getStringList('offlineProducts') ?? [];
-
-      for (int i = 0; i < productList.length; i++) {
-        Map<String, dynamic> productJson = jsonDecode(productList[i]);
-        if (productJson['localId'] == editedProduct.localId) {
-          // Atualiza as propriedades do produto com base nas alterações
-          productJson['name'] = editedProduct.name;
-          productJson['description'] = editedProduct.description;
-          productJson['quantity'] = editedProduct.quantity;
-          productJson['group'] = editedProduct.group;
-
-          // Atualiza o produto na lista
-          productList[i] = jsonEncode(productJson);
-          break; // Sai do loop, pois encontrou o produto
-        }
-      }
-
-      // Salva a lista atualizada no shared_preferences
-      prefs.setStringList('offlineProducts', productList);
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<void> deleteProductOffline(Product product) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> productList = prefs.getStringList('offlineProducts') ?? [];
-
-      // Remove o produto da lista offline
-      productList.removeWhere((productJsonString) {
-        Map<String, dynamic> productJson = jsonDecode(productJsonString);
-        return productJson['localId'] == product.localId;
-      });
-
-      prefs.setStringList('offlineProducts', productList);
-    } catch (e) {
-      print(e);
-    }
-  }
-
   Future<void> createMovimentOffline(
       Moviment newMoviment, Product updatedProduct) async {
     try {
@@ -200,7 +199,7 @@ class ProductController extends GetxController {
             "id": product.id,
             "name": product.name,
             "description": product.description,
-            "quantity": product.quantity
+            "group": product.group
           });
       Product.fromJson(response.data['result']);
     } catch (e) {

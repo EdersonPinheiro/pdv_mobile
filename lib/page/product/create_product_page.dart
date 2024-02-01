@@ -142,7 +142,6 @@ class _CreateProductPageState extends State<CreateProductPage> {
                           syncController.isConn == true
                               ? controller.createProduct(newProduct)
                               : createProductOffline(newProduct);
-
                           Get.back();
                           widget.reload();
                         },
@@ -159,6 +158,6 @@ class _CreateProductPageState extends State<CreateProductPage> {
 
   Future<void> createProductOffline(Product newProduct) async {
     controller.createProductOffline(newProduct);
-    controller.createActionProductOffline(newProduct);
+    controller.createActionProductOffline(newProduct, "edit");
   }
 }

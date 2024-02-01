@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../controllers/group_controller.dart';
 import '../../controllers/product_controller.dart';
+import '../../controllers/sync/sync_controller.dart';
 import '../../model/product.dart';
 
 class EditProductPage extends StatefulWidget {
@@ -18,6 +19,7 @@ class EditProductPage extends StatefulWidget {
 
 class _EditProductPageState extends State<EditProductPage> {
   ProductController controller = ProductController();
+  final SyncController syncController = Get.put(SyncController());
   final GroupController groupController = Get.put(GroupController());
   String? _selectedGroup;
   List _groupList = [];
@@ -155,9 +157,11 @@ class _EditProductPageState extends State<EditProductPage> {
                                 quantity: widget.product.quantity,
                                 group: controller.group.text,
                                 description: controller.description.text,
-                                setor: '',
+                                setor: widget.product.setor,
                               );
-                              await controller.editProductOffline(newProduct);
+                              syncController.isConn == true
+                              ? controller.changeProduct(newProduct)
+                              : editProductOffline(newProduct);
                               widget.reload();
                               Get.back();
                             },
@@ -176,8 +180,8 @@ class _EditProductPageState extends State<EditProductPage> {
     );
   }
 
-  Future<void> editProductOffline(Product newProduct) async {
-    controller.createProductOffline(newProduct);
-    controller.createActionProductOffline(newProduct);
+  Future<void> editProductOffline(Product product) async {
+    controller.editProductOffline(product);
+    controller.createActionProductOffline(product, "edit");
   }
 }
