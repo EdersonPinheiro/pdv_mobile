@@ -3,8 +3,9 @@ class TypeMoviment {
   String localId;
   String name;
   String? desc;
-  dynamic type;
+  String? type;
   String setor;
+  String? status;
 
   TypeMoviment({
     required this.id,
@@ -13,16 +14,18 @@ class TypeMoviment {
     this.desc,
     this.type,
     required this.setor,
+    this.status,
   });
 
   factory TypeMoviment.fromJson(Map<String, dynamic> json) {
     return TypeMoviment(
-        id: json['id'] ?? '',
-        localId: json['localId'] ?? '',
-        name: json['name'] ?? '',
-        desc: json['desc'] ?? '',
-        type: json['type'] ?? '',
-        setor: json['setor'] ?? '');
+      id: json['id'] ?? '',
+      localId: json['localId'] ?? '',
+      name: json['name'] ?? '',
+      desc: json['description'] ?? '',
+      type: json['type'] ?? '',
+      setor: json['setor'] ?? '',
+    );
   }
 
   //envia os dados para api
@@ -30,7 +33,7 @@ class TypeMoviment {
         'id': id,
         'localId': localId,
         'name': name,
-        'desc': desc,
+        'description': desc,
         'type': type,
         'setor': setor
       };

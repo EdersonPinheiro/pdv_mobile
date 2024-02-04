@@ -25,18 +25,14 @@ class _EditTypeMovimentPageState extends State<EditTypeMovimentPage> {
   @override
   void initState() {
     super.initState();
-    getTypeMovimentsOff();
+    //getTypeMovimentsOff();
     typeMovimentController.localId.text = widget.typeMoviment.localId ?? '';
     typeMovimentController.name.text = widget.typeMoviment.name;
     typeMovimentController.description.text =
         widget.typeMoviment.desc.toString();
-    typeMovimentController.type.text = widget.typeMoviment.type;
+    typeMovimentController.type.text = widget.typeMoviment.type?? '';
   }
 
-  Future<void> getTypeMovimentsOff() async {
-    await typeMovimentController.getOfflineTypeMoviments();
-    setState(() {});
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,8 +117,8 @@ class _EditTypeMovimentPageState extends State<EditTypeMovimentPage> {
                                 type: isToggleOn ? 'Saída' : 'Entrada',
                                 setor: '',
                               );
-                              await typeMovimentController
-                                  .deleteTypeMovimentOffline(newTypeMoviment);
+                              //await typeMovimentController
+                                  //.deleteTypeMovimentOffline(newTypeMoviment);
                               widget.reload();
                               Get.back();
                             },
@@ -150,8 +146,8 @@ class _EditTypeMovimentPageState extends State<EditTypeMovimentPage> {
                                 type: isToggleOn ? 'Saída' : 'Entrada',
                                 setor: '',
                               );
-                              await typeMovimentController
-                                  .editTypeMovimentOffline(newTypeMoviment);
+                              //await typeMovimentController
+                                  //.editTypeMovimentOffline(newTypeMoviment);
                               widget.reload();
                               Get.back();
                             },

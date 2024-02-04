@@ -4,92 +4,106 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meu_estoque/model/group.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../constants/constants.dart';
 import '../model/type_moviment.dart';
 
 class TypeMovimentController extends GetxController {
   final dio = new Dio();
-  List typeMoviments = <TypeMoviment>[].obs;
+  final RxList<TypeMoviment> typeMoviments = <TypeMoviment>[].obs;
   final id = TextEditingController();
   final localId = TextEditingController();
   final name = TextEditingController();
   final description = TextEditingController();
   final type = TextEditingController();
 
-
-  Future<void> createTypeMovimentOffline(TypeMoviment typeMoviment) async {
+  Future<bool> handleLiveQueryEventCreate(
+      LiveQueryEvent event, ParseObject value) async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> typeMovimentList =
-          prefs.getStringList('offlineTypeMoviments') ?? [];
-      typeMovimentList.add(jsonEncode(typeMoviment.toJson()));
-      prefs.setStringList('offlineTypeMoviments', typeMovimentList);
+      TypeMoviment typeMoviment = TypeMoviment(
+        id: value.get<String>('objectId').toString(),
+        localId: value.get<String>('localId').toString(),
+        name: value.get<String>('name') ?? '',
+        status: value.get<String>('status') ?? '',
+        type: value.get<String>('type') ?? '',
+        setor: value.get('setor'),
+      );
 
-      typeMoviments = typeMovimentList;
+      await db.addTypeMoviment(typeMoviment);
+      return true;
     } catch (e) {
-      print(e);
+      return false;
     }
   }
 
-  Future<List> getOfflineTypeMoviments() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> typeMovimentList =
-        prefs.getStringList('offlineTypeMoviments') ?? [];
-    typeMoviments = [];
-
-    for (String typeMovimentJsonString in typeMovimentList) {
-      Map<String, dynamic> typeMovimentJson =
-          jsonDecode(typeMovimentJsonString);
-      TypeMoviment typeMoviment = TypeMoviment.fromJson(typeMovimentJson);
-      typeMoviments.add(typeMoviment);
-    }
-
-    return typeMoviments;
-  }
-
-  Future<void> editTypeMovimentOffline(TypeMoviment editedTypeMoviment) async {
+  Future<bool> handleLiveQueryEventUpdate(
+      LiveQueryEvent event, ParseObject value) async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> typeMovimentList =
-          prefs.getStringList('offlineTypeMoviments') ?? [];
+      TypeMoviment typeMoviment = TypeMoviment(
+        id: value.get<String>('objectId').toString(),
+        localId: value.get<String>('localId').toString(),
+        name: value.get<String>('name') ?? '',
+        status: value.get<String>('status') ?? '',
+        type: value.get<String>('type') ?? '',
+        setor: value.get('setor'),
+      );
 
-      for (int i = 0; i < typeMovimentList.length; i++) {
-        Map<String, dynamic> typeMovimentJson = jsonDecode(typeMovimentList[i]);
-        if (typeMovimentJson['localId'] == editedTypeMoviment.localId) {
-          // Atualiza as propriedades do produto com base nas alterações
-          typeMovimentJson['name'] = editedTypeMoviment.name;
-          typeMovimentJson['desc'] = editedTypeMoviment.desc;
-          typeMovimentJson['type'] = editedTypeMoviment.type;
+      print(typeMoviment.toJson());
 
-          // Atualiza o produto na lista
-          typeMovimentList[i] = jsonEncode(typeMovimentJson);
-          break; // Sai do loop, pois encontrou o produto
-        }
+      await db.updateTypeMovimentDB(typeMoviment);
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> handleLiveQueryEventDelete(
+      LiveQueryEvent event, ParseObject value) async {
+    try {
+      TypeMoviment typeMoviment = TypeMoviment(
+        id: value.get<String>('objectId').toString(),
+        localId: value.get<String>('localId').toString(),
+        name: value.get<String>('name') ?? '',
+        status: value.get<String>('status') ?? '',
+        type: value.get<String>('type') ?? '',
+        setor: value.get('setor'),
+      );
+
+      print(typeMoviment.toJson());
+
+      await db.deleteTypeMovimentDB(typeMoviment);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<List<TypeMoviment>> getTypeMoviment() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userToken = prefs.getString('userToken') ?? 'null';
+    dio.options.headers = {
+      'X-Parse-Application-Id': KeyApplicationId,
+      'X-Parse-REST-API-Key': KeyClientKey,
+      'X-Parse-Session-Token': userToken,
+    };
+
+    try {
+      final response = await dio.post('$b4a/get-type-moviment');
+
+      if (response.data["result"] != null) {
+        typeMoviments.value = (response.data["result"] as List)
+            .map((data) => TypeMoviment.fromJson(data))
+            .toList();
+        //return products;
       }
 
-      // Salva a lista atualizada no shared_preferences
-      prefs.setStringList('offlineTypeMoviments', typeMovimentList);
+      await db.saveTypeMoviment(typeMoviments.value);
     } catch (e) {
       print(e);
     }
-  }
-
-  Future<void> deleteTypeMovimentOffline(TypeMoviment typeMoviment) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> groupList =
-          prefs.getStringList('offlineTypeMoviments') ?? [];
-
-      // Remove o produto da lista offline
-      groupList.removeWhere((groupJsonString) {
-        Map<String, dynamic> groupJson = jsonDecode(groupJsonString);
-        return groupJson['localId'] == typeMoviment.localId;
-      });
-
-      prefs.setStringList('offlineTypeMoviments', groupList);
-    } catch (e) {
-      print(e);
-    }
+    return typeMoviments;
   }
 }

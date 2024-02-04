@@ -6,7 +6,10 @@ import 'package:meu_estoque/model/type_moviment.dart';
 import 'package:meu_estoque/page/product/create_product_page.dart';
 import 'package:meu_estoque/page/product/edit_product_page.dart';
 import 'package:meu_estoque/page/type_moviment/edit_type_moviment_page.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../constants/constants.dart';
 import '../../controllers/group_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../controllers/type_moviment_controller.dart';
@@ -27,12 +30,71 @@ class _TypeMovimentPageState extends State<TypeMovimentPage> {
   @override
   void initState() {
     super.initState();
-    getTypeMovimentOff();
+    typeMovimentController.getTypeMoviment();
   }
 
-  Future<void> getTypeMovimentOff() async {
-    await typeMovimentController.getOfflineTypeMoviments();
-    setState(() {});
+  final LiveQuery liveQueryT = LiveQuery();
+  QueryBuilder<ParseObject> queryT =
+      QueryBuilder<ParseObject>(ParseObject("TypeMoviment"));
+
+  Future<void> startLiveQuery() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final setor = prefs.getString('setor')!;
+    Subscription subscription = await liveQueryT.client.subscribe(queryT);
+
+    subscription.on(LiveQueryEvent.create, (value) async {
+      ParseObject? setorObject = value.get<ParseObject>("setor");
+      final setorParse = setorObject?.get("objectId");
+
+      if (setorParse == setor) {
+        await typeMovimentController.handleLiveQueryEventCreate(
+            LiveQueryEvent.create, value);
+        if (mounted) {
+          setState(() {
+            getTypeMovimentDB();
+          });
+        }
+      }
+    });
+
+    subscription.on(LiveQueryEvent.update, (value) async {
+      ParseObject? setorObject = value.get<ParseObject>("setor");
+      final setorParse = setorObject?.get("objectId");
+
+      if (setorParse == setor) {
+        await typeMovimentController.handleLiveQueryEventUpdate(
+            LiveQueryEvent.update, value);
+        if (mounted) {
+          setState(() {
+            getTypeMovimentDB();
+          });
+        }
+      }
+    });
+
+    subscription.on(LiveQueryEvent.delete, (value) async {
+      ParseObject? setorObject = value.get<ParseObject>("setor");
+      final setorParse = setorObject?.get("objectId");
+
+      if (setorParse == setor) {
+        await typeMovimentController.handleLiveQueryEventDelete(
+            LiveQueryEvent.delete, value);
+        if (mounted) {
+          setState(() {
+            getTypeMovimentDB();
+          });
+        }
+      }
+    });
+  }
+
+  Future<void> getTypeMovimentDB() async {
+    typeMovimentController.typeMoviments.value = await db.getTypeMovimentDB();
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -43,7 +105,7 @@ class _TypeMovimentPageState extends State<TypeMovimentPage> {
         centerTitle: true,
       ),
       body: RefreshIndicator(
-        onRefresh: getTypeMovimentOff,
+        onRefresh: getTypeMovimentDB,
         child: Obx(() => ListView.builder(
               itemCount: typeMovimentController.typeMoviments.length,
               itemBuilder: (BuildContext context, int index) {
@@ -70,7 +132,7 @@ class _TypeMovimentPageState extends State<TypeMovimentPage> {
                         onPressed: () async {
                           Get.to(EditTypeMovimentPage(
                               typeMoviment: typeMoviment,
-                              reload: getTypeMovimentOff));
+                              reload: getTypeMovimentDB));
                         },
                       ),
                     ),
@@ -82,7 +144,7 @@ class _TypeMovimentPageState extends State<TypeMovimentPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Get.to(CreateTypeMovimentPage(
-            reload: getTypeMovimentOff,
+            reload: getTypeMovimentDB,
           ));
         },
         child: const Icon(Icons.add),

@@ -90,8 +90,8 @@ class _CreateTypeMovimentPageState extends State<CreateTypeMovimentPage> {
                       type: isToggleOn ? 'Saída' : 'Entrada', // Update here
                       setor: '',
                     );
-                    await typeMovimentController
-                        .createTypeMovimentOffline(newTypeMoviment);
+                    //await typeMovimentController
+                        //.createTypeMovimentOffline(newTypeMoviment);
                     typeMovimentController.name.clear();
                     Get.back();
                     widget.reload();

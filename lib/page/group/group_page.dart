@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meu_estoque/page/product/create_product_page.dart';
 import 'package:meu_estoque/page/product/edit_product_page.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../constants/constants.dart';
 import '../../controllers/group_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../controllers/sync/sync_controller.dart';
@@ -26,23 +29,83 @@ class _GroupPageState extends State<GroupPage> {
   @override
   void initState() {
     super.initState();
-    syncController.isConn == true ? getGroupsOn() : getGroupsOff();
+    groupController.getGroup();
+    startLiveQueryG();
   }
 
-  Future <void> checkConnection() async {
-    syncController.isConn == true ? getGroupsOn() : getGroupsOff();
+  final LiveQuery liveQueryG = LiveQuery();
+  QueryBuilder<ParseObject> queryG =
+      QueryBuilder<ParseObject>(ParseObject("Group"));
+
+  Future<void> startLiveQueryG() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final setor = prefs.getString('setor');
+    Subscription subscriptionG = await liveQueryG.client.subscribe(queryG);
+
+    subscriptionG.on(LiveQueryEvent.create, (value) {
+      ParseObject? setorObject = value.get<ParseObject>("setor");
+      final setorParse = setorObject?.get("objectId");
+      if (setorParse == setor) {
+        groupController.handleLiveQueryEventCreate(
+            LiveQueryEvent.update, value);
+        if (mounted) {
+          setState(() {
+            getGroupsDB();
+          });
+        }
+      }
+    });
+
+    subscriptionG.on(LiveQueryEvent.update, (value) {
+      ParseObject? setorObject = value.get<ParseObject>("setor");
+      final setorParse = setorObject?.get("objectId");
+
+      if (setorParse == setor) {
+        groupController.handleLiveQueryEventUpdate(
+            LiveQueryEvent.update, value);
+        if (mounted) {
+          setState(() {
+            getGroupsDB();
+          });
+        }
+      }
+    });
+
+    subscriptionG.on(LiveQueryEvent.delete, (value) {
+      ParseObject? setorObject = value.get<ParseObject>("setor");
+      final setorParse = setorObject?.get("objectId");
+      if (setorParse == setor) {
+        groupController.handleLiveQueryEventDelete(
+            LiveQueryEvent.update, value);
+        if (mounted) {
+          setState(() {
+            getGroupsDB();
+          });
+        }
+      }
+    });
   }
-  
+
+  Future<void> checkConnection() async {
+    syncController.isConn == true ? getGroupsOn() : getGroupsDB();
+  }
 
   Future<void> getGroupsOn() async {
     print("Get Groups On");
     await groupController.getGroup();
-   
   }
 
-  Future<void> getGroupsOff() async {
-    print("Get Groups Off");
-    await groupController.getOfflineGroups();
+  Future<void> getGroupsDB() async {
+    groupController.groups.value = await db.getGroupDB();
+    for (var element in groupController.groups) {
+      element.name;
+    }
+    print(groupController.groups.value);
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -53,7 +116,7 @@ class _GroupPageState extends State<GroupPage> {
         centerTitle: true,
       ),
       body: RefreshIndicator(
-        onRefresh: checkConnection,
+        onRefresh: getGroupsDB,
         child: Obx(() => ListView.builder(
               itemCount: groupController.groups.length,
               itemBuilder: (BuildContext context, int index) {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../db/db.dart';
+final db = DB();
 late String userToken;
 String fullname = '';
 String setor = '';

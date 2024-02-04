@@ -52,7 +52,7 @@ class _ProductEntradaSaidaPageState extends State<ProductEntradaSaidaPage> {
     // TODO: implement initState
     super.initState();
     //loadBanner();
-    getTypeMovimentOff();
+    //getTypeMovimentOff();
   }
 
   /*void loadBanner() {
@@ -74,10 +74,6 @@ class _ProductEntradaSaidaPageState extends State<ProductEntradaSaidaPage> {
     ).load();
   }*/
 
-  Future<void> getTypeMovimentOff() async {
-    typeMoviment = await typeMovimentController.getOfflineTypeMoviments();
-    setState(() {});
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -277,7 +273,7 @@ class _ProductEntradaSaidaPageState extends State<ProductEntradaSaidaPage> {
       localId: widget.product.localId,
       name: widget.product.name,
       quantity: newQuantity,
-      group: widget.product.group,
+      groups: widget.product.groups,
       description: widget.product.description,
       setor: '',
     );
@@ -293,7 +289,7 @@ class _ProductEntradaSaidaPageState extends State<ProductEntradaSaidaPage> {
     );
 
     movimentController.saveMovimentOffline(newMoviment);
-    productController.editProductOffline(newProduct);
+    //productController.editProductOffline(newProduct);
   }
 
   String dataHoraFormatada(DateTime data) {

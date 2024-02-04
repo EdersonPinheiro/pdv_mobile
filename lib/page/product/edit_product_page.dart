@@ -27,23 +27,12 @@ class _EditProductPageState extends State<EditProductPage> {
   @override
   void initState() {
     super.initState();
-    getProductsOff();
-    getGroupsOff();
+    controller.getProductsDB();
     controller.localId.text = widget.product.localId ?? '';
     controller.name.text = widget.product.name;
     controller.description.text = widget.product.description;
     controller.quantity.text = widget.product.quantity.toString();
-    controller.group.text = widget.product.group;
-  }
-
-  Future<void> getGroupsOff() async {
-    _groupList = await groupController.getOfflineGroups();
-    setState(() {});
-  }
-
-  Future<void> getProductsOff() async {
-    await controller.getOfflineProducts();
-    setState(() {});
+    controller.group.text = widget.product.groups;
   }
 
   @override
@@ -125,12 +114,12 @@ class _EditProductPageState extends State<EditProductPage> {
                                 id: widget.product.id,
                                 localId: widget.product.localId,
                                 name: controller.name.text,
-                                group: controller.group.text,
+                                groups: controller.group.text,
                                 quantity: widget.product.quantity,
                                 description: controller.description.text,
                                 setor: '',
                               );
-                              await controller.deleteProductOffline(newProduct);
+                              //await controller.deleteProductOffline(newProduct);
                               widget.reload();
                               Get.back();
                             },
@@ -155,13 +144,11 @@ class _EditProductPageState extends State<EditProductPage> {
                                 localId: widget.product.localId,
                                 name: controller.name.text,
                                 quantity: widget.product.quantity,
-                                group: controller.group.text,
+                                groups: controller.group.text,
                                 description: controller.description.text,
                                 setor: widget.product.setor,
                               );
-                              syncController.isConn == true
-                              ? controller.changeProduct(newProduct)
-                              : editProductOffline(newProduct);
+                              //await editProductOffline(newProduct);
                               widget.reload();
                               Get.back();
                             },
@@ -178,10 +165,5 @@ class _EditProductPageState extends State<EditProductPage> {
         ),
       ),
     );
-  }
-
-  Future<void> editProductOffline(Product product) async {
-    controller.editProductOffline(product);
-    controller.createActionProductOffline(product, "edit");
   }
 }

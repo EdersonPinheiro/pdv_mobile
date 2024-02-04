@@ -5,6 +5,7 @@ class Group {
   String description;
   String? setor;
   String? action;
+  String? status;
 
   Group(
       {this.id,
@@ -12,7 +13,8 @@ class Group {
       required this.name,
       required this.description,
       this.setor,
-      this.action});
+      this.action,
+      this.status});
 
   //pega os dados da api e insere nas variaveis da classe
   factory Group.fromJson(Map<String, dynamic> json) {
@@ -33,5 +35,13 @@ class Group {
         'description': description,
         'setor': setor,
         'action': action,
+      };
+
+  Map<String, dynamic> toJsonDB() => {
+        'id': id,
+        'localId': localId,
+        'name': name,
+        'description': description,
+        'setor': setor,
       };
 }

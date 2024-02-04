@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meu_estoque/page/product/create_product_page.dart';
 import 'package:meu_estoque/page/product/edit_product_page.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../constants/constants.dart';
 import '../../controllers/product_controller.dart';
 import '../../controllers/sync/sync_controller.dart';
 import '../../model/product.dart';
@@ -22,20 +25,113 @@ class _ProductPageState extends State<ProductsPage> {
   @override
   void initState() {
     super.initState();
-    syncController.isConn == true ? getProductsApi() : getProductsOff();
+    productController.getProducts();
+    startLiveQuery();
   }
 
-  List<Product> teste = [];
-  Future<void> getProductsApi() async {
-    productController.products.value =
-        await productController.getProducts();
-    setState(() {});
-    print("Buscou os dados da api");
+  final LiveQuery liveQuery = LiveQuery();
+  QueryBuilder<ParseObject> query =
+      QueryBuilder<ParseObject>(ParseObject("Product"));
+
+  Future<void> startLiveQuery() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final setor = prefs.getString('setor')!;
+    Subscription subscription = await liveQuery.client.subscribe(query);
+
+    subscription.on(LiveQueryEvent.create, (value) async {
+      ParseObject? setorObject = value.get<ParseObject>("setor");
+      final setorParse = setorObject?.get("objectId");
+
+      if (setorParse == setor) {
+        ParseObject? groupObject = value.get<ParseObject>("group");
+        final teste = groupObject?.get("objectId");
+
+        ParseObject? setorObject = value.get<ParseObject>("setor");
+        final setor = setorObject?.get("objectId");
+
+        Product product = Product(
+            id: value.get<String>('objectId').toString(),
+            localId: value.get<String>('localId').toString(),
+            name: value.get<String>('name') ?? '',
+            description: value.get<String>('description') ?? '',
+            quantity: value.get('quantity'),
+            groups: teste,
+            setor: setor);
+
+        await db.addProduct(product);
+        if (mounted) {
+          setState(() {
+            getProductsDB();
+          });
+        }
+      }
+    });
+
+    subscription.on(LiveQueryEvent.update, (value) async {
+      ParseObject? setorObject = value.get<ParseObject>("setor");
+      final setorParse = setorObject?.get("objectId");
+
+      if (setorParse == setor) {
+        ParseObject? groupObject = value.get<ParseObject>("group");
+        final teste = groupObject?.get("objectId");
+
+        Product product = Product(
+            id: value.get<String>('objectId').toString(),
+            localId: value.get<String>('localId').toString(),
+            name: value.get<String>('name') ?? '',
+            description: value.get<String>('description') ?? '',
+            quantity: value.get('quantity'),
+            groups: teste,
+            setor: setorParse);
+
+        await db.updateProduct(product);
+        if (mounted) {
+          setState(() {
+            getProductsDB();
+          });
+        }
+      }
+    });
+
+    subscription.on(LiveQueryEvent.delete, (value) async {
+      ParseObject? setorObject = value.get<ParseObject>("setor");
+      final setorParse = setorObject?.get("objectId");
+
+      if (setorParse == setor) {
+        ParseObject? groupObject = value.get<ParseObject>("group");
+        final teste = groupObject?.get("objectId");
+
+        Product product = Product(
+            id: value.get<String>('objectId').toString(),
+            localId: value.get<String>('localId').toString(),
+            name: value.get<String>('name') ?? '',
+            description: value.get<String>('description') ?? '',
+            quantity: value.get('quantity'),
+            groups: teste,
+            setor: setorParse);
+
+        await db.deleteProductDB(product);
+        if (mounted) {
+          setState(() {
+            getProductsDB();
+          });
+        }
+      }
+    });
   }
 
-  Future<void> getProductsOff() async {
-    await productController.getOfflineProducts();
-    setState(() {});
+  Future<void> getProductsDB() async {
+    productController.products.value = await db.getProductsDB();
+    for (var element in productController.products) {
+      element.name;
+    }
+    print(productController.products.value);
+    print("Buscou os dados do DB");
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -46,7 +142,7 @@ class _ProductPageState extends State<ProductsPage> {
         centerTitle: true,
       ),
       body: RefreshIndicator(
-        onRefresh: getProductsOff,
+        onRefresh: getProductsDB,
         child: Obx(() => ListView.builder(
               itemCount: productController.products.length,
               itemBuilder: (BuildContext context, int index) {
@@ -71,7 +167,7 @@ class _ProductPageState extends State<ProductsPage> {
                         icon: const Icon(Icons.edit),
                         onPressed: () async {
                           Get.to(() => EditProductPage(
-                              product: product, reload: getProductsOff));
+                              product: product, reload: getProductsDB));
                         },
                       ),
                     ),
@@ -83,7 +179,7 @@ class _ProductPageState extends State<ProductsPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Get.to(CreateProductPage(
-            reload: getProductsOff,
+            reload: getProductsDB,
           ));
         },
         child: const Icon(Icons.add),

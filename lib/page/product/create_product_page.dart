@@ -22,7 +22,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
   final ProductController controller = Get.put(ProductController());
   final GroupController groupController = Get.put(GroupController());
   final SyncController syncController = Get.put(SyncController());
-  
+
   final Dio dio = Dio();
   final _formKey = GlobalKey<FormState>();
   static const uuid = Uuid();
@@ -33,12 +33,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getGroupsOff();
-  }
-
-  Future<void> getGroupsOff() async {
-    _groupList = await groupController.getOfflineGroups();
-    setState(() {});
+    controller.getProductsDB();
   }
 
   @override
@@ -126,22 +121,21 @@ class _CreateProductPageState extends State<CreateProductPage> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                         onPressed: () async {
-                          SharedPreferences prefs = await SharedPreferences.getInstance();
-                          controller.setor.text = prefs.getString('setor').toString();
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          controller.setor.text =
+                              prefs.getString('setor').toString();
                           const uuid = Uuid();
                           final newProduct = Product(
-                            id: '',
-                            localId: uuid.v4(),
-                            name: controller.name.text,
-                            group: _selectedGroup.toString(),
-                            quantity: int.parse(controller.quantity.text),
-                            description: controller.description.text,
-                            setor: controller.setor.text,
-                            action: 'new'
-                          );
-                          syncController.isConn == true
-                              ? controller.createProduct(newProduct)
-                              : createProductOffline(newProduct);
+                              id: '',
+                              localId: uuid.v4(),
+                              name: controller.name.text,
+                              groups: _selectedGroup.toString(),
+                              quantity: int.parse(controller.quantity.text),
+                              description: controller.description.text,
+                              setor: controller.setor.text,
+                              action: 'new');
+                          //await createProductOffline(newProduct);
                           Get.back();
                           widget.reload();
                         },
@@ -154,10 +148,5 @@ class _CreateProductPageState extends State<CreateProductPage> {
         ),
       ),
     );
-  }
-
-  Future<void> createProductOffline(Product newProduct) async {
-    controller.createProductOffline(newProduct);
-    controller.createActionProductOffline(newProduct, "edit");
   }
 }

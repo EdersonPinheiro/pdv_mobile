@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:meu_estoque/page/product/product_page.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/constants.dart';
 import '../model/moviment.dart';
@@ -24,6 +25,102 @@ class ProductController extends GetxController {
   final description = TextEditingController();
   final setor = TextEditingController();
 
+  Future<void> handleLiveQueryEventCreate(
+      LiveQueryEvent event, ParseObject value) async {
+    try {
+      ParseObject? groupObject = value.get<ParseObject>("group");
+      final teste = groupObject?.get("objectId");
+
+      ParseObject? setorObject = value.get<ParseObject>("setor");
+      final setor = setorObject?.get("objectId");
+      debugPrint("ue");
+
+      Product product = Product(
+          id: value.get<String>('objectId').toString(),
+          localId: value.get<String>('localId').toString(),
+          name: value.get<String>('name') ?? '',
+          description: value.get<String>('description') ?? '',
+          quantity: value.get('quantity'),
+          groups: teste,
+          setor: setor);
+
+      debugPrint("Product criadu : $product");
+
+      await db.addProduct(product);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<bool> handleLiveQueryEventUpdate(
+      LiveQueryEvent event, ParseObject value) async {
+    try {
+      ParseObject? groupObject = value.get<ParseObject>("groups");
+      final teste = groupObject?.get("objectId");
+
+      ParseObject? setorObject = value.get<ParseObject>("setor");
+      final setor = setorObject?.get("objectId");
+
+      Product product = Product(
+        id: value.get<String>('objectId').toString(),
+        localId: value.get<String>('localId').toString(),
+        name: value.get<String>('name') ?? '',
+        description: value.get<String>('description') ?? '',
+        quantity: value.get('quantity'),
+        groups: teste,
+        status: value.get<String>('status') ?? '',
+        setor: value.get('setor'),
+      );
+
+      print(product.toJson());
+
+      await db.updateProduct(product);
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> handleLiveQueryEventDelete(
+      LiveQueryEvent event, ParseObject value) async {
+    try {
+      ParseObject? groupObject = value.get<ParseObject>("groups");
+      final teste = groupObject?.get("objectId");
+
+      ParseObject? setorObject = value.get<ParseObject>("setor");
+      final setor = setorObject?.get("objectId");
+
+      Product product = Product(
+        id: value.get<String>('objectId').toString(),
+        localId: value.get<String>('localId').toString(),
+        name: value.get<String>('name') ?? '',
+        description: value.get<String>('description') ?? '',
+        quantity: value.get('quantity'),
+        groups: teste,
+        status: value.get<String>('status') ?? '',
+        setor: value.get('setor'),
+      );
+
+      print(product.toJson());
+
+      await db.deleteProductDB(product);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<void> getProductsDB() async {
+    products.value = await db.getProductsDB();
+    for (var element in products) {
+      element.name;
+    }
+    print(products.value);
+    print("Buscou os dados do DB");
+    update();
+  }
+
   Future<void> createProduct(Product product) async {
     try {
       final response = await Dio().post(
@@ -37,7 +134,7 @@ class ProductController extends GetxController {
         ),
         data: {
           "localId": product.localId,
-          "group": product.group,
+          "group": product.groups,
           "name": product.name,
           "description": product.description,
           "quantity": product.quantity,
@@ -46,105 +143,6 @@ class ProductController extends GetxController {
       );
 
       if (response.statusCode == 200) {}
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<void> createProductOffline(Product product) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> productList = prefs.getStringList('offlineProducts') ?? [];
-      productList.add(jsonEncode(product.toJson()));
-      prefs.setStringList('offlineProducts', productList);
-
-      products.value = productList.cast<Product>();
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<void> editProductOffline(Product editedProduct) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> productList = prefs.getStringList('offlineProducts') ?? [];
-
-      for (int i = 0; i < productList.length; i++) {
-        Map<String, dynamic> productJson = jsonDecode(productList[i]);
-        if (productJson['localId'] == editedProduct.localId) {
-          // Atualiza as propriedades do produto com base nas alterações
-          productJson['name'] = editedProduct.name;
-          productJson['description'] = editedProduct.description;
-          productJson['group'] = editedProduct.group;
-
-          // Atualiza o produto na lista
-          productList[i] = jsonEncode(productJson);
-          break; // Sai do loop, pois encontrou o produto
-        }
-      }
-
-      // Salva a lista atualizada no shared_preferences
-      prefs.setStringList('offlineProducts', productList);
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<void> deleteProductOffline(Product product) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> productList = prefs.getStringList('offlineProducts') ?? [];
-
-      // Remove o produto da lista offline
-      productList.removeWhere((productJsonString) {
-        Map<String, dynamic> productJson = jsonDecode(productJsonString);
-        return productJson['localId'] == product.localId;
-      });
-
-      prefs.setStringList('offlineProducts', productList);
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<void> createActionProductOffline(Product product, action) async {
-    try {
-      // Create a new Product instance with the input values
-      Product newProduct = Product(
-          id: id.text,
-          localId: localId.text,
-          name: name.text,
-          quantity: int.parse(quantity.text),
-          group: group.text,
-          description: description.text,
-          setor: setor.text,
-          action: action);
-
-      // Check if localId already exists in offline products
-      if (actioProducts
-          .any((product) => product.localId == newProduct.localId)) {
-        // Handle duplicate localId as needed
-        print("Product with the same localId already exists offline.");
-        return;
-      }
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> productList = prefs.getStringList('actionProducts') ?? [];
-      productList.add(jsonEncode(product.toJson()));
-      prefs.setStringList('actionProducts', productList);
-
-      products.value = productList.cast<Product>();
-
-      // Clear the text controllers
-      id.clear();
-      localId.clear();
-      name.clear();
-      quantity.clear();
-      group.clear();
-      description.clear();
-
-      // Notify the UI that the list has been updated
-      update();
     } catch (e) {
       print(e);
     }
@@ -199,7 +197,7 @@ class ProductController extends GetxController {
             "id": product.id,
             "name": product.name,
             "description": product.description,
-            "group": product.group
+            "group": product.groups
           });
       Product.fromJson(response.data['result']);
     } catch (e) {
@@ -243,12 +241,10 @@ class ProductController extends GetxController {
             .map((data) => Product.fromJson(data))
             .toList();
 
-        List<String> offlineProducts =
-            products.map((product) => jsonEncode(product.toJson())).toList();
-        prefs.setStringList('offlineProducts', offlineProducts);
-
         this.products.value = products;
       }
+
+      await db.saveProducts(products);
     } catch (e) {
       print(e);
     }

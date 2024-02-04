@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meu_estoque/model/group.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/constants.dart';
@@ -17,6 +18,66 @@ class GroupController extends GetxController {
   final description = TextEditingController();
   final quantity = TextEditingController();
   final setor = TextEditingController();
+
+  Future<bool> handleLiveQueryEventCreate(
+      LiveQueryEvent event, dynamic value) async {
+    try {
+      Group group = Group(
+        id: value.get<String>('objectId'),
+        localId: value.get<String>('localId'),
+        name: value.get<String>('name') ?? '',
+        description: value.get<String>('description') ?? '',
+      );
+
+      print(group.toJsonDB());
+
+      await db.addGroup(group);
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> handleLiveQueryEventUpdate(
+      LiveQueryEvent event, dynamic value) async {
+    try {
+      Group group = Group(
+        id: value.get<String>('objectId'),
+        localId: value.get<String>('localId'),
+        name: value.get<String>('name') ?? '',
+        description: value.get<String>('description') ?? '',
+      );
+
+      print(group.toJsonDB());
+
+      await db.updateGroups(group);
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> handleLiveQueryEventDelete(
+      LiveQueryEvent event, dynamic value) async {
+    try {
+      Group group = Group(
+        id: value.get<String>('objectId'),
+        localId: value.get<String>('localId'),
+        name: value.get<String>('name') ?? '',
+        description: value.get<String>('description') ?? '',
+      );
+
+      print(group.toJsonDB());
+
+      await db.deleteGroupsDB(group);
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 
   Future<List<Group>> getGroup() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -35,14 +96,7 @@ class GroupController extends GetxController {
             .map((data) => Group.fromJson(data))
             .toList();
 
-        // Save the group information in 'offlineGroups' key in SharedPreferences
-        List<String> offlineGroups =
-            groups.map((group) => jsonEncode(group.toJson())).toList();
-        prefs.setStringList('offlineGroups', offlineGroups);
-
-        // Save the selected group name in SharedPreferences
-        prefs.setString(
-            'selectedGroup', groups.isNotEmpty ? groups[0].name : '');
+        await db.saveGroups(groups);
 
         this.groups.value = groups;
       }
