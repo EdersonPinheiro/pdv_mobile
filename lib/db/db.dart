@@ -23,7 +23,7 @@ class DB {
 
   Future<Database> initDB() async {
     var databasesPath = await getDatabasesPath();
-    String path = join(databasesPath, "mspkp");
+    String path = join(databasesPath, "ffgz");
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
@@ -109,7 +109,7 @@ class DB {
       quantity INTEGER,
       groups TEXT,
       setor TEXT,
-      status TEXT
+      action TEXT
     )
   ''');
   }
@@ -257,7 +257,7 @@ class DB {
               'id': product['id'],
               'name': product['name'],
               'description': product['description'],
-              'groups': product['groups'],
+              'groups': product['group'],
             })
         .toList();
 
@@ -333,7 +333,7 @@ class DB {
               name: map['name'],
               description: map['description'],
               quantity: map['quantity'],
-              groups: map['group'] ?? '',
+              groups: map['groups'] ?? '',
               setor: map['setor']),
         );
       }
@@ -400,7 +400,8 @@ class DB {
       'name': product.name,
       'description': product.description,
       'quantity': product.quantity,
-      'group': product.groups,
+      'groups': product.groups,
+      'setor': product.setor,
       'action': product.action,
     });
   }
@@ -418,17 +419,17 @@ class DB {
           name: map['name'],
           description: map['description'],
           quantity: map['quantity'],
-          groups: map['group'],
+          groups: map['groups'],
           action: map['action'],
-          setor: map[setor]));
+          setor: map['setor']));
     });
     print(maps.length);
     return products;
   }
 
-  Future<void> deleteActionDB() async {
+  Future<void> deleteActionDB(String action) async {
     final dbClient = await db;
-    await dbClient.delete('actionproduct');
+    await dbClient.delete(action);
   }
 
   //################################################################################################################################################
@@ -714,13 +715,13 @@ class DB {
     List<Group> groups = [];
     for (var map in maps) {
       //if (map['action'] != "delete") {
-        groups.add(
-          Group(
-              id: map['id'],
-              localId: map['localId'],
-              name: map['name'],
-              description: map['description']),
-        );
+      groups.add(
+        Group(
+            id: map['id'],
+            localId: map['localId'],
+            name: map['name'],
+            description: map['description']),
+      );
       //}
     }
 

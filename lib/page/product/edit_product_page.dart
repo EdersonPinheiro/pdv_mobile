@@ -22,7 +22,7 @@ class _EditProductPageState extends State<EditProductPage> {
   ProductController controller = ProductController();
   final SyncController syncController = Get.put(SyncController());
   final GroupController groupController = Get.put(GroupController());
-  String _selectedGroup = "Grupo";
+  String? _selectedGroup;
   List _groupList = [];
 
   @override
@@ -35,12 +35,13 @@ class _EditProductPageState extends State<EditProductPage> {
     controller.description.text = widget.product.description;
     controller.quantity.text = widget.product.quantity.toString();
     controller.group.text = widget.product.groups;
+    _selectedGroup = widget.product.groups;
   }
 
   Future<void> getGroupsDB() async {
     _groupList = await db.getGroupDB();
     for (var element in groupController.groups) {
-      element.name;
+      controller.group.text = element.name;
     }
     print(groupController.groups.value);
     if (mounted) {
@@ -81,13 +82,13 @@ class _EditProductPageState extends State<EditProductPage> {
                         return null;
                       },
                     ),
-                     DropdownButtonFormField(
-                      value: _selectedGroup == null ? controller.group.text : _selectedGroup,
+                    DropdownButtonFormField(
+                      value: _selectedGroup,
                       onChanged: (String? value) {
                         print("Dropdown onChanged triggered");
                         print("Selected Value: $value");
                         setState(() {
-                          _selectedGroup = value!;
+                          _selectedGroup = value;
                           controller.group.text = value ?? '';
                         });
                         print(
@@ -96,12 +97,12 @@ class _EditProductPageState extends State<EditProductPage> {
                       },
                       items: _groupList.map((group) {
                         return DropdownMenuItem<String>(
-                          value: group.localId,
+                          value: group.id ?? group.localId,
                           child: Text(group.name),
                         );
                       }).toList(),
                       decoration: const InputDecoration(
-                        labelText: 'Grupo',
+                        labelText: "Grupo",
                       ),
                       validator: (value) {
                         if (value == null) {
@@ -128,7 +129,7 @@ class _EditProductPageState extends State<EditProductPage> {
                                 groups: controller.group.text,
                                 quantity: widget.product.quantity,
                                 description: controller.description.text,
-                                setor: '',
+                                setor: widget.product.setor,
                               );
                               //await controller.deleteProductOffline(newProduct);
                               widget.reload();

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../constants/constants.dart';
 import '../../model/group.dart';
 import '../../model/product.dart';
 import '../group_controller.dart';
@@ -45,18 +46,8 @@ class SyncController extends GetxController {
   }
 
   sync() async {
-    await syncOfflineItems<Group>(
-      'actionGroups',
-      (group) async {
-        await groupController.createGroup(group);
-      },
-      (group) async {
-        await groupController.editGroup(group);
-      },
-    );
-
     await syncOfflineItems<Product>(
-      'actionProducts',
+      'actionproduct',
       (product) async {
         await productController.createProduct(product);
       },
@@ -64,9 +55,6 @@ class SyncController extends GetxController {
         await productController.changeProduct(product);
       },
     );
-
-    clearOfflineGroups();
-    clearOfflineProducts();
   }
 
   Future<void> syncOfflineItems<T>(
@@ -74,55 +62,16 @@ class SyncController extends GetxController {
     void Function(T) createItem,
     void Function(T) editItem,
   ) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> offlineItems = prefs.getStringList(actionKey) ?? [];
+    List<Product> offlineItems = await db.getActionProduct();
 
-    // Create a copy of the list to avoid ConcurrentModificationError
-    List<String> copyOfOfflineItems = List.from(offlineItems);
-
-    for (String itemString in copyOfOfflineItems) {
-      Map<String, dynamic> itemJson = jsonDecode(itemString);
-      T item = _createItemFromJson<T>(itemJson);
-
-      if (item is Group) {
-        if (item.action == "new") {
-          createItem(item);
-        } else if (item.action == "edit") {
-          editItem(item);
-        }
-      } else if (item is Product) {
-        if (item.action == "new") {
-          createItem(item);
-        } else if (item.action == "edit") {
-          editItem(item);
-        }
+    for (Product item in offlineItems) {
+      if (item.action == "new") {
+        createItem(item as T);
+      } else if (item.action == "edit") {
+        editItem(item as T);
       }
-
-      // Remove the item from the original list of offline items after synchronization
-      offlineItems.remove(itemString);
     }
 
-    // Update the list of offline items in SharedPreferences after synchronization
-    prefs.setStringList(actionKey, offlineItems);
-  }
-
-  T _createItemFromJson<T>(Map<String, dynamic> itemJson) {
-    if (T == Group) {
-      return Group.fromJson(itemJson) as T;
-    } else if (T == Product) {
-      return Product.fromJson(itemJson) as T;
-    }
-    // Handle other types if needed
-    throw ArgumentError("Unsupported type");
-  }
-
-  void clearOfflineProducts() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove('actionProducts');
-  }
-
-  void clearOfflineGroups() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove('actionGroups');
+    db.deleteActionDB('actionproduct');
   }
 }

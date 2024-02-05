@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:meu_estoque/page/relatorios/relatorio_estoque_atual.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../constants/constants.dart';
 import '../../controllers/group_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../controllers/sync/sync_controller.dart';
@@ -69,15 +70,7 @@ class _HomePageState extends State<HomePage> {
                 color: syncController.isConn.value ? Colors.green : Colors.red,
               ),
               onPressed: () async {
-                /*SharedPreferences prefs = await SharedPreferences.getInstance();
-                List<String> actionProducts =
-                    prefs.getStringList('actionGroups') ?? [];
-
-                // Iterate over the elements of the actionProducts list and print each element
-                for (String group in actionProducts) {
-                  print("Group: $group");
-                }*/
-                //Get.to(RelatorioEstoqueAtual());
+                db.getActionProduct();
               },
             );
           }),

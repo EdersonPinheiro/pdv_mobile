@@ -1,6 +1,6 @@
 class Product {
   String id;
-  String localId;
+  String? localId;
   String name;
   String description;
   String setor;
@@ -10,7 +10,7 @@ class Product {
 
   Product({
     required this.id,
-    required this.localId,
+    this.localId,
     required this.name,
     required this.quantity,
     required this.groups,
@@ -49,12 +49,11 @@ class Product {
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
         id: json['id'],
-        localId: json['localId'],
         name: json['name'],
         quantity: json['quantity'],
-        groups: json['group'] ?? '',
+        groups: json['group'],
         description: json['description'] ?? '',
         setor: json['setor'],
-        action: json['action']);
+        action: json['action'] ?? '');
   }
 }

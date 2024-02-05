@@ -25,11 +25,10 @@ class _ProductPageState extends State<ProductsPage> {
   @override
   void initState() {
     super.initState();
+    //productController.getProducts();
     getProductsDB();
     startLiveQuery();
   }
-
-  
 
   final LiveQuery liveQuery = LiveQuery();
   QueryBuilder<ParseObject> query =
