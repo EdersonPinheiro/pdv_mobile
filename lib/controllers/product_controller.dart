@@ -68,7 +68,7 @@ class ProductController extends GetxController {
         description: value.get<String>('description') ?? '',
         quantity: value.get('quantity'),
         groups: teste,
-        status: value.get<String>('status') ?? '',
+        action: value.get<String>('action') ?? '',
         setor: value.get('setor'),
       );
 
@@ -98,7 +98,7 @@ class ProductController extends GetxController {
         description: value.get<String>('description') ?? '',
         quantity: value.get('quantity'),
         groups: teste,
-        status: value.get<String>('status') ?? '',
+        action: value.get<String>('action') ?? '',
         setor: value.get('setor'),
       );
 

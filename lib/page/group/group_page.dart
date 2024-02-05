@@ -29,7 +29,7 @@ class _GroupPageState extends State<GroupPage> {
   @override
   void initState() {
     super.initState();
-    groupController.getGroup();
+    groupController.getGroupsDB();
     startLiveQueryG();
   }
 

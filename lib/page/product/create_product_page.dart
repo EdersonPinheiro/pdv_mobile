@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../constants/constants.dart';
 import '../../controllers/group_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../controllers/sync/sync_controller.dart';
@@ -34,6 +35,18 @@ class _CreateProductPageState extends State<CreateProductPage> {
     // TODO: implement initState
     super.initState();
     controller.getProductsDB();
+    getGroupsDB();
+  }
+
+  Future<void> getGroupsDB() async {
+    _groupList = await db.getGroupDB();
+    for (var element in groupController.groups) {
+      element.name;
+    }
+    print(groupController.groups.value);
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override

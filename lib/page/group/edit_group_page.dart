@@ -30,7 +30,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
   }
 
   Future<void> getProductsOff() async {
-    await controller.getOfflineGroups();
+    await controller.getGroupsDB();
     setState(() {});
   }
 
@@ -89,7 +89,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
                                 description: controller.description.text,
                                 setor: controller.setor.text,
                               );
-                              await controller.deleteGroupOffline(newGroup);
+                              //await controller.deleteGroupOffline(newGroup);
                               widget.reload();
                               Get.back();
                             },
@@ -123,7 +123,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
                               );
                               syncController.isConn == true
                               ? controller.editGroup(newGroup)
-                              : editGroupOffline(newGroup);
+                              : //editGroupOffline(newGroup);
                               widget.reload();
                               Get.back();
                             },
@@ -142,8 +142,4 @@ class _EditGroupPageState extends State<EditGroupPage> {
     );
   }
 
-  Future<void> editGroupOffline(Group newGroup) async {
-    controller.editGroupOffline(newGroup);
-    controller.createActionGroupOffline(newGroup, "edit");
-  }
 }

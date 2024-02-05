@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
+import '../../constants/constants.dart';
 import '../../controllers/group_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../controllers/sync/sync_controller.dart';
@@ -21,18 +22,30 @@ class _EditProductPageState extends State<EditProductPage> {
   ProductController controller = ProductController();
   final SyncController syncController = Get.put(SyncController());
   final GroupController groupController = Get.put(GroupController());
-  String? _selectedGroup;
+  String _selectedGroup = "Grupo";
   List _groupList = [];
 
   @override
   void initState() {
     super.initState();
     controller.getProductsDB();
+    getGroupsDB();
     controller.localId.text = widget.product.localId ?? '';
     controller.name.text = widget.product.name;
     controller.description.text = widget.product.description;
     controller.quantity.text = widget.product.quantity.toString();
     controller.group.text = widget.product.groups;
+  }
+
+  Future<void> getGroupsDB() async {
+    _groupList = await db.getGroupDB();
+    for (var element in groupController.groups) {
+      element.name;
+    }
+    print(groupController.groups.value);
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -68,15 +81,13 @@ class _EditProductPageState extends State<EditProductPage> {
                         return null;
                       },
                     ),
-                    DropdownButtonFormField(
-                      value: _selectedGroup == null
-                          ? controller.group.text
-                          : _selectedGroup,
+                     DropdownButtonFormField(
+                      value: _selectedGroup == null ? controller.group.text : _selectedGroup,
                       onChanged: (String? value) {
                         print("Dropdown onChanged triggered");
                         print("Selected Value: $value");
                         setState(() {
-                          _selectedGroup = value;
+                          _selectedGroup = value!;
                           controller.group.text = value ?? '';
                         });
                         print(
@@ -85,7 +96,7 @@ class _EditProductPageState extends State<EditProductPage> {
                       },
                       items: _groupList.map((group) {
                         return DropdownMenuItem<String>(
-                          value: group.id ?? group.localId,
+                          value: group.localId,
                           child: Text(group.name),
                         );
                       }).toList(),
@@ -140,15 +151,23 @@ class _EditProductPageState extends State<EditProductPage> {
                           child: ElevatedButton(
                             onPressed: () async {
                               final newProduct = Product(
-                                id: widget.product.id,
-                                localId: widget.product.localId,
-                                name: controller.name.text,
-                                quantity: widget.product.quantity,
-                                groups: controller.group.text,
-                                description: controller.description.text,
-                                setor: widget.product.setor,
-                              );
-                              //await editProductOffline(newProduct);
+                                  id: widget.product.id,
+                                  localId: widget.product.localId,
+                                  name: controller.name.text,
+                                  quantity: widget.product.quantity,
+                                  groups: controller.group.text,
+                                  description: controller.description.text,
+                                  setor: widget.product.setor,
+                                  action: 'edit');
+                              if (syncController.isConn.value == true) {
+                                await db.updateProduct(newProduct);
+                                await controller.changeProduct(newProduct);
+                                Get.back();
+                              } else {
+                                await db.updateProduct(newProduct);
+                                await db.saveActionProduct(newProduct);
+                                Get.back();
+                              }
                               widget.reload();
                               Get.back();
                             },

@@ -79,7 +79,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                               action: 'new');
                           syncController.isConn == true
                               ? controller.createGroup(newGroup)
-                              : createGroupOffline(newGroup);
+                              :// createGroupOffline(newGroup);
                           Get.back();
                           widget.reload();
                         },
@@ -92,10 +92,5 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
         ),
       ),
     );
-  }
-
-  Future<void> createGroupOffline(Group newGroup) async {
-    controller.createGroupOffline(newGroup);
-    controller.createActionGroupOffline(newGroup, "new");
   }
 }

@@ -23,7 +23,7 @@ class DB {
 
   Future<Database> initDB() async {
     var databasesPath = await getDatabasesPath();
-    String path = join(databasesPath, "mspxfp");
+    String path = join(databasesPath, "mspkp");
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
@@ -49,7 +49,7 @@ class DB {
         quantity INTEGER,
         groups TEXT,
         setor TEXT,
-        status TEXT
+        action TEXT
       )
     ''');
   }
@@ -284,7 +284,7 @@ class DB {
               'description': products[i].description,
               'groups': products[i].groups,
               'quantity': products[i].quantity,
-              'status': products[i].status,
+              'action': products[i].action,
               'setor': products[i].setor
             },
             conflictAlgorithm: ConflictAlgorithm.replace);
@@ -305,6 +305,7 @@ class DB {
         'quantity': product.quantity,
         'groups': product.groups,
         'setor': product.setor,
+        'action': product.action
       });
 
       print("Produto adicionado");
@@ -324,7 +325,7 @@ class DB {
     final List<Map<String, dynamic>> maps = await dbClient.query('product');
     List<Product> products = [];
     maps.forEach((map) {
-      if (map['status'] != "delete") {
+      if (map['action'] != "delete") {
         products.add(
           Product(
               id: map['id'],
@@ -347,7 +348,7 @@ class DB {
     String productName = '';
 
     maps.forEach((map) {
-      if (map['status'] != "delete" && map['id'] == objectId) {
+      if (map['action'] != "delete" && map['id'] == objectId) {
         // Verifique se o valor "status" é diferente de "delete" e se o "id" corresponde ao objectId
         productName = map['name'];
       }
@@ -400,7 +401,7 @@ class DB {
       'description': product.description,
       'quantity': product.quantity,
       'group': product.groups,
-      'status': product.status,
+      'action': product.action,
     });
   }
 
@@ -418,7 +419,7 @@ class DB {
           description: map['description'],
           quantity: map['quantity'],
           groups: map['group'],
-          status: map['status'],
+          action: map['action'],
           setor: map[setor]));
     });
     print(maps.length);
@@ -712,7 +713,7 @@ class DB {
     final List<Map<String, dynamic>> maps = await dbClient.query('groups');
     List<Group> groups = [];
     for (var map in maps) {
-      if (map['status'] != "delete") {
+      //if (map['action'] != "delete") {
         groups.add(
           Group(
               id: map['id'],
@@ -720,7 +721,7 @@ class DB {
               name: map['name'],
               description: map['description']),
         );
-      }
+      //}
     }
 
     print("Tem ${groups.length} groups no banco");

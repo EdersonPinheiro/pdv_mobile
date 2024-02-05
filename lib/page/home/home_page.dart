@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:meu_estoque/page/relatorios/relatorio_estoque_atual.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../controllers/group_controller.dart';
+import '../../controllers/product_controller.dart';
 import '../../controllers/sync/sync_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../model/user.dart';
@@ -25,11 +27,26 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final SyncController syncController = Get.put(SyncController());
   final UserController userController = Get.put(UserController());
-
+  final ProductController productController = Get.put(ProductController());
+  final GroupController groupController = Get.put(GroupController());
   @override
   void initState() {
     super.initState();
-    
+    checkConnection();
+  }
+
+  void checkConnection() {
+    if (syncController.isConn.value == true) {
+      productController.getProducts();
+      groupController.getGroup();
+    } else {
+      productController.getProductsDB();
+      groupController.getGroupsDB();
+
+      if (mounted) {
+        setState(() {});
+      }
+    }
   }
 
   @override
@@ -60,7 +77,7 @@ class _HomePageState extends State<HomePage> {
                 for (String group in actionProducts) {
                   print("Group: $group");
                 }*/
-                Get.to(RelatorioEstoqueAtual());
+                //Get.to(RelatorioEstoqueAtual());
               },
             );
           }),

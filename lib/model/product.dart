@@ -7,7 +7,6 @@ class Product {
   String groups;
   int quantity;
   String? action;
-  String? status;
 
   Product({
     required this.id,
@@ -18,7 +17,6 @@ class Product {
     required this.description,
     required this.setor,
     this.action,
-    this.status,
   });
 
   Map<String, dynamic> toJsonDB() {
@@ -29,7 +27,8 @@ class Product {
       'quantity': quantity,
       'groups': groups,
       'description': description,
-      'setor': setor
+      'setor': setor,
+      'action': action
     };
   }
 

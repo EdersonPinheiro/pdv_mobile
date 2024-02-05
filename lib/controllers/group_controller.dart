@@ -19,6 +19,15 @@ class GroupController extends GetxController {
   final quantity = TextEditingController();
   final setor = TextEditingController();
 
+  Future<void> getGroupsDB() async {
+    groups.value = await db.getGroupDB();
+    for (var element in groups) {
+      element.name;
+    }
+    print(groups.value);
+   
+  }
+
   Future<bool> handleLiveQueryEventCreate(
       LiveQueryEvent event, dynamic value) async {
     try {
@@ -169,112 +178,6 @@ class GroupController extends GetxController {
             "description": group.description,
           });
       Group.fromJson(response.data['result']);
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<void> createGroupOffline(Group group) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> groupList = prefs.getStringList('offlineGroups') ?? [];
-      groupList.add(jsonEncode(group.toJson()));
-      prefs.setStringList('offlineGroups', groupList);
-
-      groups.value = groupList.cast<Group>();
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<List<Group>> getOfflineGroups() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> groupList = prefs.getStringList('offlineGroups') ?? [];
-    groups.value = [];
-
-    for (String groupJsonString in groupList) {
-      Map<String, dynamic> groupJson = jsonDecode(groupJsonString);
-      Group group = Group.fromJson(groupJson);
-      groups.add(group);
-    }
-
-    return groups;
-  }
-
-  Future<void> editGroupOffline(Group editedGroup) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> groupList = prefs.getStringList('offlineGroups') ?? [];
-
-      for (int i = 0; i < groupList.length; i++) {
-        Map<String, dynamic> groupJson = jsonDecode(groupList[i]);
-        if (groupJson['localId'] == editedGroup.localId) {
-          // Atualiza as propriedades do produto com base nas alterações
-          groupJson['name'] = editedGroup.name;
-          groupJson['description'] = editedGroup.description;
-
-          // Atualiza o produto na lista
-          groupList[i] = jsonEncode(groupJson);
-          break; // Sai do loop, pois encontrou o produto
-        }
-      }
-
-      // Salva a lista atualizada no shared_preferences
-      prefs.setStringList('offlineGroups', groupList);
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<void> deleteGroupOffline(Group group) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> groupList = prefs.getStringList('offlineGroups') ?? [];
-
-      // Remove o produto da lista offline
-      groupList.removeWhere((groupJsonString) {
-        Map<String, dynamic> groupJson = jsonDecode(groupJsonString);
-        return groupJson['localId'] == group.localId;
-      });
-
-      prefs.setStringList('offlineGroups', groupList);
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<void> createActionGroupOffline(Group group, action) async {
-    try {
-      // Create a new Group instance with the input values
-      Group newGroup = Group(
-        id: group.id,
-        localId: group.localId,
-        name: group.name,
-        description: group.description,
-        setor: group.setor,
-        action: action,
-      );
-
-      // Check if localId already exists in offline groups
-      if (actionGroups.any((group) => group.localId == newGroup.localId)) {
-        // Handle duplicate localId as needed
-        print("Group with the same localId already exists offline.");
-        return;
-      }
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> groupList = prefs.getStringList('actionGroups') ?? [];
-      groupList.add(jsonEncode(newGroup.toJson()));
-      prefs.setStringList('actionGroups', groupList);
-
-      // Clear the fields or controllers as needed
-      localId.clear();
-      name.clear();
-      description.clear();
-      setor.clear();
-
-      // Notify the UI that the list has been updated
-      update();
     } catch (e) {
       print(e);
     }
