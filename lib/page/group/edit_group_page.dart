@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../constants/constants.dart';
 import '../../controllers/group_controller.dart';
 import '../../controllers/sync/sync_controller.dart';
 import '../../model/group.dart';
@@ -19,7 +20,7 @@ class EditGroupPage extends StatefulWidget {
 class _EditGroupPageState extends State<EditGroupPage> {
   GroupController controller = GroupController();
   final SyncController syncController = Get.put(SyncController());
-  
+
   @override
   void initState() {
     super.initState();
@@ -79,9 +80,9 @@ class _EditGroupPageState extends State<EditGroupPage> {
                           child: ElevatedButton(
                             onPressed: () async {
                               SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          controller.setor.text =
-                              prefs.getString('setor').toString();
+                                  await SharedPreferences.getInstance();
+                              controller.setor.text =
+                                  prefs.getString('setor').toString();
                               final newGroup = Group(
                                 id: widget.group.id,
                                 localId: widget.group.localId,
@@ -89,9 +90,16 @@ class _EditGroupPageState extends State<EditGroupPage> {
                                 description: controller.description.text,
                                 setor: controller.setor.text,
                               );
-                              //await controller.deleteGroupOffline(newGroup);
-                              widget.reload();
-                              Get.back();
+                              if (syncController.isConn.value == true) {
+                                //controller.deleteGroup(newGroup);
+                                Get.back();
+                                widget.reload();
+                              } else {
+                                await db.deleteGroupsDB(newGroup);
+                                await db.saveActionGroup(newGroup);
+                                Get.back();
+                                widget.reload();
+                              }
                             },
                             child: const Text('Excluir'),
                             style: ButtonStyle(
@@ -110,22 +118,26 @@ class _EditGroupPageState extends State<EditGroupPage> {
                           child: ElevatedButton(
                             onPressed: () async {
                               SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          controller.setor.text =
-                              prefs.getString('setor').toString();
+                                  await SharedPreferences.getInstance();
+                              controller.setor.text =
+                                  prefs.getString('setor').toString();
                               final newGroup = Group(
-                                id: widget.group.id,
-                                localId: widget.group.localId,
-                                name: controller.name.text,
-                                description: controller.description.text,
-                                setor: controller.setor.text,
-                                action: 'edit'
-                              );
-                              syncController.isConn == true
-                              ? controller.editGroup(newGroup)
-                              : //editGroupOffline(newGroup);
-                              widget.reload();
-                              Get.back();
+                                  id: widget.group.id,
+                                  localId: widget.group.localId,
+                                  name: controller.name.text,
+                                  description: controller.description.text,
+                                  setor: controller.setor.text,
+                                  action: 'edit');
+                              if (syncController.isConn.value == true) {
+                                await controller.editGroup(newGroup);
+                                Get.back();
+                                widget.reload();
+                              } else {
+                                await db.updateGroups(newGroup);
+                                await db.saveActionGroup(newGroup);
+                                Get.back();
+                                widget.reload();
+                              }
                             },
                             child: const Text('Salvar'),
                           ),
@@ -141,5 +153,4 @@ class _EditGroupPageState extends State<EditGroupPage> {
       ),
     );
   }
-
 }

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../constants/constants.dart';
 import '../../controllers/group_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../controllers/sync/sync_controller.dart';
@@ -77,9 +78,15 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                               description: controller.description.text,
                               setor: controller.setor.text,
                               action: 'new');
-                          syncController.isConn == true
-                              ? controller.createGroup(newGroup)
-                              :// createGroupOffline(newGroup);
+                          if (syncController.isConn.value == true) {
+                            controller.createGroup(newGroup);
+                            Get.back();
+                          } else {
+                            await db.addGroup(newGroup);
+                            await db.saveActionGroup(newGroup);
+                            Get.back();
+                            widget.reload();
+                          }
                           Get.back();
                           widget.reload();
                         },

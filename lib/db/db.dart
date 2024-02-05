@@ -23,7 +23,7 @@ class DB {
 
   Future<Database> initDB() async {
     var databasesPath = await getDatabasesPath();
-    String path = join(databasesPath, "ffgz");
+    String path = join(databasesPath, "ffgkz");
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 

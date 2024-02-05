@@ -148,8 +148,15 @@ class _CreateProductPageState extends State<CreateProductPage> {
                               description: controller.description.text,
                               setor: controller.setor.text,
                               action: 'new');
-                          //await createProductOffline(newProduct);
-                          Get.back();
+                          if (syncController.isConn.value == true) {
+                            await controller.createProduct(newProduct);
+                            Get.back();
+                          } else {
+                            await db.addProduct(newProduct);
+                            await db.saveActionProduct(newProduct);
+                            Get.back();
+                            widget.reload();
+                          }
                           widget.reload();
                         },
                         child: Text('Criar')),

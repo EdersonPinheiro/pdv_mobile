@@ -63,7 +63,6 @@ class SyncController extends GetxController {
     void Function(T) editItem,
   ) async {
     List<Product> offlineItems = await db.getActionProduct();
-
     for (Product item in offlineItems) {
       if (item.action == "new") {
         createItem(item as T);
@@ -71,7 +70,6 @@ class SyncController extends GetxController {
         editItem(item as T);
       }
     }
-
     db.deleteActionDB('actionproduct');
   }
 }
