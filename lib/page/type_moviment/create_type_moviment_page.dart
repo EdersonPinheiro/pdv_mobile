@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:get/get.dart';
+import 'package:meu_estoque/controllers/sync/sync_controller.dart';
 import 'package:uuid/uuid.dart';
 import '../../controllers/type_moviment_controller.dart';
+import '../../db/db.dart';
 import '../../model/type_moviment.dart';
 
-class CreateTypeMovimentPage extends StatefulWidget {
+class CreateTypeMoviment extends StatefulWidget {
+  final Function sync;
   final Function reload;
-  const CreateTypeMovimentPage({super.key, required this.reload});
+  const CreateTypeMoviment(
+      {super.key, required this.sync, required this.reload});
 
   @override
-  State<CreateTypeMovimentPage> createState() => _CreateTypeMovimentPageState();
+  State<CreateTypeMoviment> createState() => _CreateTypeMovimentState();
 }
 
-class _CreateTypeMovimentPageState extends State<CreateTypeMovimentPage> {
-  final TypeMovimentController typeMovimentController =
-      Get.put(TypeMovimentController());
+class _CreateTypeMovimentState extends State<CreateTypeMoviment> {
+  final SyncController syncController = Get.find();
+  TypeMovimentController controller = TypeMovimentController();
   final _formKey = GlobalKey<FormState>();
+  final db = DB();
   bool isToggleOn = false;
   String name = "Entrada";
   @override
@@ -32,7 +38,7 @@ class _CreateTypeMovimentPageState extends State<CreateTypeMovimentPage> {
           child: Column(
             children: <Widget>[
               TextFormField(
-                controller: typeMovimentController.name,
+                controller: controller.name,
                 decoration: InputDecoration(
                   labelText: 'Nome',
                 ),
@@ -44,7 +50,7 @@ class _CreateTypeMovimentPageState extends State<CreateTypeMovimentPage> {
                 },
               ),
               TextFormField(
-                controller: typeMovimentController.description,
+                controller: controller.description,
                 decoration: InputDecoration(
                   labelText: 'Descrição',
                 ),
@@ -83,18 +89,24 @@ class _CreateTypeMovimentPageState extends State<CreateTypeMovimentPage> {
                   if (_formKey.currentState!.validate()) {
                     const uuid = Uuid();
                     final newTypeMoviment = TypeMoviment(
-                      id: '',
                       localId: uuid.v4(),
-                      name: typeMovimentController.name.text,
-                      desc: typeMovimentController.description.text,
-                      type: isToggleOn ? 'Saída' : 'Entrada', // Update here
-                      setor: '',
+                      name: controller.name.text,
+                      description: controller.description.text,
+                      type: isToggleOn ? '1' : '2',
+                      action: "new",
                     );
-                    //await typeMovimentController
-                        //.createTypeMovimentOffline(newTypeMoviment);
-                    typeMovimentController.name.clear();
-                    Get.back();
-                    widget.reload();
+
+                    if (syncController.isConn.value == true) {
+                      //await db.addTypeMoviment(newTypeMoviment);
+                      controller.createTypeMoviment(newTypeMoviment);
+                      Get.back();
+                      widget.reload();
+                    } else {
+                      await db.addTypeMoviment(newTypeMoviment);
+                      await db.saveActionTypeMoviment(newTypeMoviment);
+                      Get.back();
+                      widget.reload();
+                    }
                   }
                 },
                 child: Text('Criar'),

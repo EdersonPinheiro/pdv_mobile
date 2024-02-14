@@ -21,7 +21,7 @@ class _EntradaSaidaPage extends State<EntradaSaidaPage> {
     super.initState();
     //syncController.isConn.value == true ? getProductsApi() : getProductsDB();
     //loadBanner();
-    getProductsOff();
+    getProductsDB();
   }
 
   /*void loadBanner() {
@@ -43,9 +43,18 @@ class _EntradaSaidaPage extends State<EntradaSaidaPage> {
     ).load();
   }*/
 
-  Future<void> getProductsOff() async {
-    await productController.getOfflineProducts();
-    setState(() {});
+  Future<void> getProductsDB() async {
+    productController.products.value = await db.getProductsDB();
+    for (var element in productController.products) {
+      element.name;
+    }
+    print(productController.products.value);
+    print("Buscou os dados do DB");
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -60,7 +69,7 @@ class _EntradaSaidaPage extends State<EntradaSaidaPage> {
             return <Widget>[
               SliverToBoxAdapter(
                 child: RefreshIndicator(
-                  onRefresh: getProductsOff,
+                  onRefresh: getProductsDB,
                   key: refreshIndicatorKey,
                   child: Column(
                     children: [
@@ -97,7 +106,7 @@ class _EntradaSaidaPage extends State<EntradaSaidaPage> {
                                       onTap: () async {
                                         Get.to(ProductEntradaSaidaPage(
                                           product: product,
-                                          reload: getProductsOff,
+                                          reload: getProductsDB,
                                         ));
                                       },
                                       trailing: Text(

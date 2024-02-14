@@ -26,7 +26,7 @@ class TypeMovimentController extends GetxController {
         id: value.get<String>('objectId').toString(),
         localId: value.get<String>('localId').toString(),
         name: value.get<String>('name') ?? '',
-        status: value.get<String>('status') ?? '',
+        action: value.get<String>('action') ?? '',
         type: value.get<String>('type') ?? '',
         setor: value.get('setor'),
       );
@@ -45,7 +45,7 @@ class TypeMovimentController extends GetxController {
         id: value.get<String>('objectId').toString(),
         localId: value.get<String>('localId').toString(),
         name: value.get<String>('name') ?? '',
-        status: value.get<String>('status') ?? '',
+        action: value.get<String>('action') ?? '',
         type: value.get<String>('type') ?? '',
         setor: value.get('setor'),
       );
@@ -67,7 +67,7 @@ class TypeMovimentController extends GetxController {
         id: value.get<String>('objectId').toString(),
         localId: value.get<String>('localId').toString(),
         name: value.get<String>('name') ?? '',
-        status: value.get<String>('status') ?? '',
+        action: value.get<String>('action') ?? '',
         type: value.get<String>('type') ?? '',
         setor: value.get('setor'),
       );
@@ -79,6 +79,14 @@ class TypeMovimentController extends GetxController {
     } catch (e) {
       return false;
     }
+  }
+
+  Future<void> getTypeMovimentDB() async {
+    typeMoviments.value = await db.getTypeMovimentDB();
+    for (var element in typeMoviments) {
+      element.name;
+    }
+    print(typeMoviments.value);
   }
 
   Future<List<TypeMoviment>> getTypeMoviment() async {
@@ -97,7 +105,6 @@ class TypeMovimentController extends GetxController {
         typeMoviments.value = (response.data["result"] as List)
             .map((data) => TypeMoviment.fromJson(data))
             .toList();
-        //return products;
       }
 
       await db.saveTypeMoviment(typeMoviments.value);
@@ -105,5 +112,78 @@ class TypeMovimentController extends GetxController {
       print(e);
     }
     return typeMoviments;
+  }
+
+  Future<void> createTypeMoviment(TypeMoviment type) async {
+    try {
+      final response = await Dio().post(
+        'https://parseapi.back4app.com/parse/functions/create-type-moviment',
+        options: Options(
+          headers: {
+            'X-Parse-Application-Id': KeyApplicationId,
+            'X-Parse-REST-API-Key': KeyClientKey,
+            'X-Parse-Session-Token': '${userToken}',
+          },
+        ),
+        data: {
+          "localId": type.localId,
+          "name": type.name,
+          "description": type.description,
+          "type": type.type,
+          "action": type.action,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        String objectId = response.data['result'].toString();
+
+        final dbClient = await db;
+        await dbClient.updateTypeMovimentDB(type);
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> changeTypeMoviment(TypeMoviment type) async {
+    try {
+      final response = await Dio().post(
+          'https://parseapi.back4app.com/parse/functions/edit-type-moviment',
+          options: Options(
+            headers: {
+              'X-Parse-Application-Id': KeyApplicationId,
+              'X-Parse-REST-API-Key': KeyClientKey,
+              'X-Parse-Session-Token': '${userToken}',
+            },
+          ),
+          data: {
+            "id": type.id,
+            "name": type.name,
+            "desc": type.description,
+          });
+      TypeMoviment.fromJson(response.data['result']);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> deleteTypeMoviment(TypeMoviment type) async {
+    try {
+      final response = await Dio().post(
+          'https://parseapi.back4app.com/parse/functions/delete-type-moviment',
+          options: Options(
+            headers: {
+              'X-Parse-Application-Id': KeyApplicationId,
+              'X-Parse-REST-API-Key': KeyClientKey,
+              'X-Parse-Session-Token': userToken,
+            },
+          ),
+          data: {
+            "typeMovimentId": type.id,
+          });
+      TypeMoviment.fromJson(response.data['result']);
+    } catch (e) {
+      print(e);
+    }
   }
 }

@@ -8,7 +8,9 @@ import '../../constants/constants.dart';
 import '../../controllers/group_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../controllers/sync/sync_controller.dart';
+import '../../controllers/type_moviment_controller.dart';
 import '../../controllers/user_controller.dart';
+import '../../model/product.dart';
 import '../../model/user.dart';
 import '../auth/login_page.dart';
 import '../payment/payment_page.dart';
@@ -30,6 +32,8 @@ class _HomePageState extends State<HomePage> {
   final UserController userController = Get.put(UserController());
   final ProductController productController = Get.put(ProductController());
   final GroupController groupController = Get.put(GroupController());
+  final TypeMovimentController typeMovimentController =
+      Get.put(TypeMovimentController());
   @override
   void initState() {
     super.initState();
@@ -40,10 +44,11 @@ class _HomePageState extends State<HomePage> {
     if (syncController.isConn.value == true) {
       productController.getProducts();
       groupController.getGroup();
+      typeMovimentController.getTypeMoviment();
     } else {
       productController.getProductsDB();
       groupController.getGroupsDB();
-
+      typeMovimentController.getTypeMovimentDB();
       if (mounted) {
         setState(() {});
       }
@@ -70,7 +75,10 @@ class _HomePageState extends State<HomePage> {
                 color: syncController.isConn.value ? Colors.green : Colors.red,
               ),
               onPressed: () async {
-                db.getActionProduct();
+                List<Product> actionProducts = await db.getActionProduct();
+                actionProducts.forEach((product) {
+                  print(product); // Imprime o objeto Product
+                });
               },
             );
           }),

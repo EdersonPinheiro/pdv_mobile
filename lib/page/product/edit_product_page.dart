@@ -34,8 +34,8 @@ class _EditProductPageState extends State<EditProductPage> {
     controller.name.text = widget.product.name;
     controller.description.text = widget.product.description;
     controller.quantity.text = widget.product.quantity.toString();
-    controller.group.text = widget.product.groups;
     _selectedGroup = widget.product.groups;
+    controller.group.text = widget.product.groups;
   }
 
   Future<void> getGroupsDB() async {
@@ -101,13 +101,18 @@ class _EditProductPageState extends State<EditProductPage> {
                           child: Text(group.name),
                         );
                       }).toList(),
+                      key:
+                          UniqueKey(), // Add this line to force a rebuild when the items change
                       decoration: const InputDecoration(
                         labelText: "Grupo",
                       ),
                       validator: (value) {
+                        _selectedGroup = "";
+                        controller.group.clear();
                         if (value == null) {
                           return 'Defina o grupo do produto';
                         }
+
                         return null;
                       },
                     ),

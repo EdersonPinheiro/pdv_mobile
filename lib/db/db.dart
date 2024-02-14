@@ -23,7 +23,7 @@ class DB {
 
   Future<Database> initDB() async {
     var databasesPath = await getDatabasesPath();
-    String path = join(databasesPath, "ffgkz");
+    String path = join(databasesPath, "nkm");
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
@@ -182,9 +182,9 @@ class DB {
         data: {
           "localId": typeMoviment.localId,
           "name": typeMoviment.name,
-          "desc": typeMoviment.desc,
+          "desc": typeMoviment.description,
           "type": typeMoviment.type,
-          "status": typeMoviment.status,
+          "status": typeMoviment.action,
           "setorhook": setor,
         },
       );
@@ -215,9 +215,9 @@ class DB {
           data: {
             "id": typeMoviment.id,
             "name": typeMoviment.name,
-            "desc": typeMoviment.desc,
+            "desc": typeMoviment.description,
             "type": typeMoviment.type,
-            "status": typeMoviment.status,
+            "status": typeMoviment.action,
             "setorhook": setor
           });
       Product.fromJson(response.data['result']);
@@ -489,12 +489,7 @@ class DB {
     final uid = Uuid();
     // Get the existing product IDs from the database
     final existingTypeMovimentIds = (await dbClient.query('typemoviment'))
-        .map((typemoviment) => {
-              'id': typemoviment['id'],
-              'name': typemoviment['name'],
-              'desc': typemoviment['description'],
-              'type': typemoviment['type']
-            })
+        .map((typemoviment) => typemoviment['id'])
         .toList();
 
     // Check if the existing product IDs are the same as the new product IDs
@@ -513,7 +508,7 @@ class DB {
               'id': typemoviment[i].id,
               'localId': uid.v4(),
               'name': typemoviment[i].name,
-              'desc': typemoviment[i].desc,
+              'description': typemoviment[i].description,
               'type': typemoviment[i].type,
               'setor': typemoviment[i].setor
             },
@@ -548,9 +543,9 @@ class DB {
       'id': typeMoviment.id,
       'localId': typeMoviment.localId,
       'name': typeMoviment.name,
-      'desc': typeMoviment.desc,
+      'desc': typeMoviment.description,
       'type': typeMoviment.type,
-      'status': typeMoviment.status,
+      'status': typeMoviment.action,
       'setorhook': typeMoviment.setor
     });
   }
@@ -566,9 +561,9 @@ class DB {
           id: map['id'],
           localId: map['localId'],
           name: map['name'],
-          desc: map['desc'],
+          description: map['description'],
           type: map['type'] ?? '',
-          status: map['status'],
+          action: map['action'],
           setor: map['setor']));
     });
     print(maps.length);
@@ -867,9 +862,10 @@ class DB {
       'id': typeMoviment.id,
       'localId': typeMoviment.localId,
       'name': typeMoviment.name,
-      'desc': typeMoviment.desc,
+      'desc': typeMoviment.description,
       'type': typeMoviment.type,
-      'status': typeMoviment.status
+      'status': typeMoviment.action,
+      'setor': typeMoviment.setor
     });
   }
 
@@ -878,9 +874,9 @@ class DB {
     await dbClient.update('typemoviment', {
       'id': typeMoviment.id,
       'name': typeMoviment.name,
-      'desc': typeMoviment.desc,
+      'desc': typeMoviment.description,
       'type': typeMoviment.type,
-      'status': typeMoviment.status
+      'status': typeMoviment.action
     });
   }
 
@@ -891,16 +887,16 @@ class DB {
         await dbClient.query('typemoviment');
     List<TypeMoviment> typeMoviment = [];
     for (var map in maps) {
-      if (map['status'] != "delete") {
-        typeMoviment.add(TypeMoviment(
-            id: map['id'],
-            localId: map['localId'],
-            name: map['name'],
-            type: map['type'],
-            desc: map['desc'],
-            status: map['status'],
-            setor: map['setor']));
-      }
+      //if (map['status'] != "delete") {
+      typeMoviment.add(TypeMoviment(
+          id: map['id'],
+          localId: map['localId'],
+          name: map['name'],
+          type: map['type'],
+          description: map['description'],
+          action: map['action'],
+          setor: map['setor']));
+      //}
     }
 
     print("Tem ${typeMoviment.length} moviments no banco");

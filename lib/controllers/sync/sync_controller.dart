@@ -55,6 +55,16 @@ class SyncController extends GetxController {
         await productController.changeProduct(product);
       },
     );
+
+    await syncOfflineItems<Product>(
+      'actionproduct',
+      (product) async {
+        await productController.createProduct(product);
+      },
+      (product) async {
+        await productController.changeProduct(product);
+      },
+    );
   }
 
   Future<void> syncOfflineItems<T>(
