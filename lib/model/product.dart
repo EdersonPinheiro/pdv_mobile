@@ -2,7 +2,7 @@ class Product {
   String id;
   String? localId;
   String name;
-  String description;
+  String? description;
   String setor;
   String groups;
   int quantity;
@@ -14,7 +14,7 @@ class Product {
     required this.name,
     required this.quantity,
     required this.groups,
-    required this.description,
+    this.description,
     required this.setor,
     this.action,
   });

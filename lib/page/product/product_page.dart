@@ -160,7 +160,7 @@ class _ProductPageState extends State<ProductsPage> {
                     ),
                     child: ListTile(
                       title: Text(product.name),
-                      subtitle: Text(product.description),
+                      subtitle: Text(product.description ?? ''),
                       onTap: () async {
                         print(product.toJson());
                       },

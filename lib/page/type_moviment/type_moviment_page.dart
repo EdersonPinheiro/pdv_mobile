@@ -20,7 +20,8 @@ class TypeMovimentPage extends StatefulWidget {
 }
 
 class _TypeMovimentPageState extends State<TypeMovimentPage> {
-  final TypeMovimentController typeMovimentController = Get.put(TypeMovimentController());
+  final TypeMovimentController typeMovimentController =
+      Get.put(TypeMovimentController());
   final SyncController syncController = Get.find();
   final typeMoviments = <TypeMoviment>[].obs;
   final db = DB();
@@ -33,17 +34,17 @@ class _TypeMovimentPageState extends State<TypeMovimentPage> {
     startLiveQuery();
   }
 
-  final LiveQuery liveQuery = LiveQuery();
-  QueryBuilder<ParseObject> query =
+  final LiveQuery liveQueryT = LiveQuery();
+  QueryBuilder<ParseObject> queryT =
       QueryBuilder<ParseObject>(ParseObject("TypeMoviment"));
 
   Future<void> startLiveQuery() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final setor = prefs.getString('setor')!;
-    Subscription subscription = await liveQuery.client.subscribe(query);
+    Subscription subscription = await liveQueryT.client.subscribe(queryT);
 
     subscription.on(LiveQueryEvent.create, (value) async {
-      if (value['setorhook'] == setor) {
+      if (value['setor'] == setor) {
         await typeMovimentController.handleLiveQueryEventCreate(
             LiveQueryEvent.create, value);
         if (mounted) {
@@ -55,7 +56,7 @@ class _TypeMovimentPageState extends State<TypeMovimentPage> {
     });
 
     subscription.on(LiveQueryEvent.update, (value) async {
-      if (value['setorhook'] == setor) {
+      if (value['setor'] == setor) {
         await typeMovimentController.handleLiveQueryEventUpdate(
             LiveQueryEvent.update, value);
         if (mounted) {
@@ -67,7 +68,7 @@ class _TypeMovimentPageState extends State<TypeMovimentPage> {
     });
 
     subscription.on(LiveQueryEvent.delete, (value) async {
-      if (value['setorhook'] == setor) {
+      if (value['setor'] == setor) {
         await typeMovimentController.handleLiveQueryEventDelete(
             LiveQueryEvent.delete, value);
         if (mounted) {
@@ -79,87 +80,64 @@ class _TypeMovimentPageState extends State<TypeMovimentPage> {
     });
   }
 
-  void sync() async {
-    syncController.checkConnection(getTypeMovimentsApi);
-  }
-
-  void getTypeMovimentDB() async {
-    typeMoviments.value = await db.getTypeMovimentDB();
+  Future<void> getTypeMovimentDB() async {
+    typeMovimentController.typeMoviments.value = await db.getTypeMovimentDB();
     if (mounted) {
       setState(() {
         isLoading = false;
       });
     }
-  }
-
-  Future<void> getTypeMovimentsApi() async {
-    typeMoviments.value = await typeMovimentController.getTypeMoviment();
-    await db.saveTypeMoviment(typeMoviments);
-    if (mounted) {
-      setState(() {
-        isLoading = false;
-      });
-    }
-    print("Buscou os dados da api");
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tipo/Movimentações'),
+        title: const Text('Tipos de Movimento'),
+        centerTitle: true,
       ),
       body: RefreshIndicator(
-        onRefresh: getTypeMovimentsApi,
-        key: refreshIndicatorKey,
-        child: Obx(
-          () => ListView.builder(
-            itemCount: typeMoviments.length,
-            itemBuilder: (BuildContext context, int index) {
-              TypeMoviment typeMoviment = typeMoviments[index];
-              return Padding(
-                padding: const EdgeInsets.all(3.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey.shade400,
-                      width: 0.5,
+        onRefresh: getTypeMovimentDB,
+        child: Obx(() => ListView.builder(
+              itemCount: typeMovimentController.typeMoviments.length,
+              itemBuilder: (BuildContext context, int index) {
+                TypeMoviment typeMoviment =
+                    typeMovimentController.typeMoviments[index];
+                return Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: const Color.fromARGB(255, 218, 211, 211),
+                        width: 0.5,
+                      ),
+                      borderRadius: BorderRadius.circular(5.0),
                     ),
-                    borderRadius: BorderRadius.circular(5.0),
-                  ),
-                  child: ListTile(
-                    leading: Container(
-                      height: 170,
-                      width: 80,
-                      /*child: CachedNetworkImage(
-                            imageUrl: product.image.toString(),
-                            width: 150,
-                            height: 80,
-                          ),*/
-                    ),
-                    title: Text(typeMoviment.name),
-                    subtitle: Text(""),
-                    onTap: () async {
-                      print(typeMoviment.toJson());
-                    },
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () async {
-                        Get.to(EditTypeMovimentPage(
-                            typeMoviment: typeMoviment,
-                            reload: getTypeMovimentDB));
+                    child: ListTile(
+                      title: Text(typeMoviment.name),
+                      subtitle: Text(typeMoviment.type.toString()),
+                      onTap: () async {
+                        print(typeMoviment.toJson());
                       },
+                      trailing: IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () async {
+                          Get.to(EditTypeMovimentPage(
+                              typeMoviment: typeMoviment,
+                              reload: getTypeMovimentDB));
+                        },
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
-          ),
-        ),
+                );
+              },
+            )),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Get.to(CreateTypeMoviment(sync: sync, reload: getTypeMovimentDB));
+          Get.to(CreateTypeMovimentPage(
+            reload: getTypeMovimentDB,
+          ));
         },
         child: const Icon(Icons.add),
       ),

@@ -32,7 +32,7 @@ class _EditProductPageState extends State<EditProductPage> {
     getGroupsDB();
     controller.localId.text = widget.product.localId ?? '';
     controller.name.text = widget.product.name;
-    controller.description.text = widget.product.description;
+    controller.description.text = widget.product.description ?? '';
     controller.quantity.text = widget.product.quantity.toString();
     _selectedGroup = widget.product.groups;
     controller.group.text = widget.product.groups;

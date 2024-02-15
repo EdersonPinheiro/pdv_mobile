@@ -150,12 +150,13 @@ class _CreateProductPageState extends State<CreateProductPage> {
                               action: 'new');
                           if (syncController.isConn.value == true) {
                             await controller.createProduct(newProduct);
+                            widget.reload();
                             Get.back();
                           } else {
                             await db.addProduct(newProduct);
                             await db.saveActionProduct(newProduct);
-                            Get.back();
                             widget.reload();
+                            Get.back();
                           }
                           widget.reload();
                         },

@@ -23,7 +23,7 @@ class DB {
 
   Future<Database> initDB() async {
     var databasesPath = await getDatabasesPath();
-    String path = join(databasesPath, "nkm");
+    String path = join(databasesPath, "nkmzl");
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
@@ -93,8 +93,9 @@ class DB {
         id TEXT,
         localId TEXT PRIMARY KEY,
         name TEXT,
-        desc TEXT,
-        type TEXT
+        type TEXT,
+        setor TEXT,
+        action TEXT
       )
 ''');
   }
@@ -139,10 +140,9 @@ class DB {
         id TEXT,
         localId TEXT,
         name TEXT,
-        desc TEXT,
         type TEXT,
-        status TEXT,
-        setorhook TEXT
+        action TEXT,
+        setor TEXT
       )
     ''');
   }
@@ -182,10 +182,9 @@ class DB {
         data: {
           "localId": typeMoviment.localId,
           "name": typeMoviment.name,
-          "desc": typeMoviment.description,
           "type": typeMoviment.type,
-          "status": typeMoviment.action,
-          "setorhook": setor,
+          "action": typeMoviment.action,
+          "setor": setor,
         },
       );
       String newId = response.data['result'];
@@ -215,10 +214,8 @@ class DB {
           data: {
             "id": typeMoviment.id,
             "name": typeMoviment.name,
-            "desc": typeMoviment.description,
             "type": typeMoviment.type,
             "status": typeMoviment.action,
-            "setorhook": setor
           });
       Product.fromJson(response.data['result']);
     } catch (e) {
@@ -508,7 +505,6 @@ class DB {
               'id': typemoviment[i].id,
               'localId': uid.v4(),
               'name': typemoviment[i].name,
-              'description': typemoviment[i].description,
               'type': typemoviment[i].type,
               'setor': typemoviment[i].setor
             },
@@ -531,7 +527,7 @@ class DB {
     return await dbClient.update(
       'typemoviment',
       typeMoviment
-          .toJson(), // Use um método toMap() na classe Product para mapear os campos
+          .toJson(),
       where: 'id = ?' ?? 'localId = ?',
       whereArgs: [typeMoviment.id ?? typeMoviment.localId],
     );
@@ -543,10 +539,9 @@ class DB {
       'id': typeMoviment.id,
       'localId': typeMoviment.localId,
       'name': typeMoviment.name,
-      'desc': typeMoviment.description,
       'type': typeMoviment.type,
-      'status': typeMoviment.action,
-      'setorhook': typeMoviment.setor
+      'action': typeMoviment.action,
+      'setor': typeMoviment.setor
     });
   }
 
@@ -561,7 +556,6 @@ class DB {
           id: map['id'],
           localId: map['localId'],
           name: map['name'],
-          description: map['description'],
           type: map['type'] ?? '',
           action: map['action'],
           setor: map['setor']));
@@ -862,9 +856,8 @@ class DB {
       'id': typeMoviment.id,
       'localId': typeMoviment.localId,
       'name': typeMoviment.name,
-      'desc': typeMoviment.description,
       'type': typeMoviment.type,
-      'status': typeMoviment.action,
+      'action': typeMoviment.action,
       'setor': typeMoviment.setor
     });
   }
@@ -874,9 +867,8 @@ class DB {
     await dbClient.update('typemoviment', {
       'id': typeMoviment.id,
       'name': typeMoviment.name,
-      'desc': typeMoviment.description,
       'type': typeMoviment.type,
-      'status': typeMoviment.action
+      'action': typeMoviment.action
     });
   }
 
@@ -893,7 +885,6 @@ class DB {
           localId: map['localId'],
           name: map['name'],
           type: map['type'],
-          description: map['description'],
           action: map['action'],
           setor: map['setor']));
       //}

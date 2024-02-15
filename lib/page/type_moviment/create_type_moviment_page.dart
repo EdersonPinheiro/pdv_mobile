@@ -1,28 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:get/get.dart';
-import 'package:meu_estoque/controllers/sync/sync_controller.dart';
 import 'package:uuid/uuid.dart';
+import '../../constants/constants.dart';
+import '../../controllers/sync/sync_controller.dart';
 import '../../controllers/type_moviment_controller.dart';
-import '../../db/db.dart';
 import '../../model/type_moviment.dart';
 
-class CreateTypeMoviment extends StatefulWidget {
-  final Function sync;
+class CreateTypeMovimentPage extends StatefulWidget {
   final Function reload;
-  const CreateTypeMoviment(
-      {super.key, required this.sync, required this.reload});
+  const CreateTypeMovimentPage({super.key, required this.reload});
 
   @override
-  State<CreateTypeMoviment> createState() => _CreateTypeMovimentState();
+  State<CreateTypeMovimentPage> createState() => _CreateTypeMovimentPageState();
 }
 
-class _CreateTypeMovimentState extends State<CreateTypeMoviment> {
-  final SyncController syncController = Get.find();
-  TypeMovimentController controller = TypeMovimentController();
+class _CreateTypeMovimentPageState extends State<CreateTypeMovimentPage> {
+  final TypeMovimentController typeMovimentController =
+      Get.put(TypeMovimentController());
+  final SyncController syncController = Get.put(SyncController());
   final _formKey = GlobalKey<FormState>();
-  final db = DB();
   bool isToggleOn = false;
   String name = "Entrada";
   @override
@@ -38,7 +35,7 @@ class _CreateTypeMovimentState extends State<CreateTypeMoviment> {
           child: Column(
             children: <Widget>[
               TextFormField(
-                controller: controller.name,
+                controller: typeMovimentController.name,
                 decoration: InputDecoration(
                   labelText: 'Nome',
                 ),
@@ -48,12 +45,6 @@ class _CreateTypeMovimentState extends State<CreateTypeMoviment> {
                   }
                   return null;
                 },
-              ),
-              TextFormField(
-                controller: controller.description,
-                decoration: InputDecoration(
-                  labelText: 'Descrição',
-                ),
               ),
               SizedBox(height: 16),
               Row(
@@ -89,24 +80,24 @@ class _CreateTypeMovimentState extends State<CreateTypeMoviment> {
                   if (_formKey.currentState!.validate()) {
                     const uuid = Uuid();
                     final newTypeMoviment = TypeMoviment(
+                      id: '',
                       localId: uuid.v4(),
-                      name: controller.name.text,
-                      description: controller.description.text,
-                      type: isToggleOn ? '1' : '2',
-                      action: "new",
+                      name: typeMovimentController.name.text,
+                      type: isToggleOn ? 'Saida' : 'Entrada', // Update here
+                      setor: '',
                     );
-
                     if (syncController.isConn.value == true) {
-                      //await db.addTypeMoviment(newTypeMoviment);
-                      controller.createTypeMoviment(newTypeMoviment);
-                      Get.back();
+                      await typeMovimentController
+                          .createTypeMoviment(newTypeMoviment);
                       widget.reload();
+                      Get.back();
                     } else {
                       await db.addTypeMoviment(newTypeMoviment);
                       await db.saveActionTypeMoviment(newTypeMoviment);
-                      Get.back();
                       widget.reload();
+                      Get.back();
                     }
+                    widget.reload();
                   }
                 },
                 child: Text('Criar'),

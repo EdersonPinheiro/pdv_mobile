@@ -32,12 +32,10 @@ class ProductEntradaSaidaPage extends StatefulWidget {
 }
 
 class _ProductEntradaSaidaPageState extends State<ProductEntradaSaidaPage> {
-  ProductController controllerProduct = ProductController();
+  ProductController controllerProduct = Get.put(ProductController());
   MovimentController movimentController = MovimentController();
   final TypeMovimentController typeMovimentController =
       Get.put(TypeMovimentController());
-  final ProductController productController = Get.put(ProductController());
-  //final SyncController syncController = Get.find();
   final Dio dio = Dio();
   final _formKey = GlobalKey<FormState>();
   String? _selectedGroup;
@@ -52,7 +50,14 @@ class _ProductEntradaSaidaPageState extends State<ProductEntradaSaidaPage> {
     // TODO: implement initState
     super.initState();
     //loadBanner();
-    //getTypeMovimentOff();
+    getTypeMovimentDB();
+  }
+
+  Future<void> getTypeMovimentDB() async {
+    typeMovimentController.typeMoviments.value = await db.getTypeMovimentDB();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   /*void loadBanner() {
@@ -73,7 +78,6 @@ class _ProductEntradaSaidaPageState extends State<ProductEntradaSaidaPage> {
       ),
     ).load();
   }*/
-
 
   @override
   Widget build(BuildContext context) {
@@ -132,10 +136,10 @@ class _ProductEntradaSaidaPageState extends State<ProductEntradaSaidaPage> {
                                 _selectedGroup.toString();
                           });
                         },
-                        items: typeMoviment.map((type) {
+                        items: typeMovimentController.typeMoviments.map((type) {
                           return DropdownMenuItem<String>(
                             onTap: () {
-                              if (type.type == "Saída") {
+                              if (type.type == "Saida") {
                                 setState(() {
                                   buttonDisable = false;
                                 });

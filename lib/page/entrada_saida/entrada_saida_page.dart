@@ -102,7 +102,7 @@ class _EntradaSaidaPage extends State<EntradaSaidaPage> {
                               ),*/
                                       ),
                                       title: Text(product.name),
-                                      subtitle: Text(product.description),
+                                      subtitle: Text(product.description ?? ''),
                                       onTap: () async {
                                         Get.to(ProductEntradaSaidaPage(
                                           product: product,

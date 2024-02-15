@@ -16,10 +16,9 @@ class TypeMovimentController extends GetxController {
   final id = TextEditingController();
   final localId = TextEditingController();
   final name = TextEditingController();
-  final description = TextEditingController();
   final type = TextEditingController();
 
-  Future<bool> handleLiveQueryEventCreate(
+  Future<void> handleLiveQueryEventCreate(
       LiveQueryEvent event, ParseObject value) async {
     try {
       TypeMoviment typeMoviment = TypeMoviment(
@@ -32,13 +31,12 @@ class TypeMovimentController extends GetxController {
       );
 
       await db.addTypeMoviment(typeMoviment);
-      return true;
     } catch (e) {
-      return false;
+      print(e);
     }
   }
 
-  Future<bool> handleLiveQueryEventUpdate(
+  Future<void> handleLiveQueryEventUpdate(
       LiveQueryEvent event, ParseObject value) async {
     try {
       TypeMoviment typeMoviment = TypeMoviment(
@@ -53,14 +51,12 @@ class TypeMovimentController extends GetxController {
       print(typeMoviment.toJson());
 
       await db.updateTypeMovimentDB(typeMoviment);
-
-      return true;
     } catch (e) {
-      return false;
+      print(e);
     }
   }
 
-  Future<bool> handleLiveQueryEventDelete(
+  Future<void> handleLiveQueryEventDelete(
       LiveQueryEvent event, ParseObject value) async {
     try {
       TypeMoviment typeMoviment = TypeMoviment(
@@ -75,9 +71,8 @@ class TypeMovimentController extends GetxController {
       print(typeMoviment.toJson());
 
       await db.deleteTypeMovimentDB(typeMoviment);
-      return true;
     } catch (e) {
-      return false;
+      print(e);
     }
   }
 
@@ -107,7 +102,7 @@ class TypeMovimentController extends GetxController {
             .toList();
       }
 
-      await db.saveTypeMoviment(typeMoviments.value);
+      await db.saveTypeMoviment(typeMoviments);
     } catch (e) {
       print(e);
     }
@@ -126,19 +121,15 @@ class TypeMovimentController extends GetxController {
           },
         ),
         data: {
-          "localId": type.localId,
           "name": type.name,
-          "description": type.description,
           "type": type.type,
-          "action": type.action,
+          "setor": type.setor,
+          "action": type.action
         },
       );
 
       if (response.statusCode == 200) {
-        String objectId = response.data['result'].toString();
-
-        final dbClient = await db;
-        await dbClient.updateTypeMovimentDB(type);
+        print("Type moviment criado com sucesso");
       }
     } catch (e) {
       print(e);
@@ -156,11 +147,7 @@ class TypeMovimentController extends GetxController {
               'X-Parse-Session-Token': '${userToken}',
             },
           ),
-          data: {
-            "id": type.id,
-            "name": type.name,
-            "desc": type.description,
-          });
+          data: {"id": type.id, "name": type.name, "type": type.type});
       TypeMoviment.fromJson(response.data['result']);
     } catch (e) {
       print(e);
