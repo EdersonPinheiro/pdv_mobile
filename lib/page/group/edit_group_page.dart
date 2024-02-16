@@ -24,15 +24,21 @@ class _EditGroupPageState extends State<EditGroupPage> {
   @override
   void initState() {
     super.initState();
-    getProductsOff();
     controller.localId.text = widget.group.localId ?? '';
     controller.name.text = widget.group.name;
     controller.description.text = widget.group.description;
+    getGroupsDB();
   }
 
-  Future<void> getProductsOff() async {
-    await controller.getGroupsDB();
-    setState(() {});
+  Future<void> getGroupsDB() async {
+    controller.groups.value = await db.getGroupDB();
+    for (var element in controller.groups) {
+      element.name;
+    }
+    print(controller.groups.value);
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -89,13 +95,14 @@ class _EditGroupPageState extends State<EditGroupPage> {
                                 name: controller.name.text,
                                 description: controller.description.text,
                                 setor: controller.setor.text,
+                                action: 'delete'
                               );
                               if (syncController.isConn.value == true) {
-                                //controller.deleteGroup(newGroup);
+                                await controller.editGroup(newGroup);
                                 Get.back();
                                 widget.reload();
                               } else {
-                                await db.deleteGroupsDB(newGroup);
+                                await db.updateGroups(newGroup);
                                 await db.saveActionGroup(newGroup);
                                 Get.back();
                                 widget.reload();

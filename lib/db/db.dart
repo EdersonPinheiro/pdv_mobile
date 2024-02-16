@@ -23,7 +23,7 @@ class DB {
 
   Future<Database> initDB() async {
     var databasesPath = await getDatabasesPath();
-    String path = join(databasesPath, "nkmzl");
+    String path = join(databasesPath, "nkmuzl");
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
@@ -368,9 +368,9 @@ class DB {
     return await dbClient.update(
       'product',
       product
-          .toJsonDB(), // Use um método toMap() na classe Product para mapear os campos
-      where: 'id = ?' ?? 'localId = ?',
-      whereArgs: [product.id ?? product.localId],
+          .toJsonDB(),
+      where: 'localId = ?',
+      whereArgs: [product.localId],
     );
   }
 
@@ -693,7 +693,7 @@ class DB {
       'localId': group.localId,
       'name': group.name,
       'description': group.description,
-      'status': group.status,
+      'action': group.action,
     });
   }
 
@@ -729,7 +729,7 @@ class DB {
       'localId': group.localId,
       'name': group.name,
       'description': group.description,
-      'status': group.status,
+      'status': group.action,
       'setor': group.setor,
     });
   }
@@ -746,7 +746,7 @@ class DB {
         localId: map['localId'],
         name: map['name'],
         description: map['description'],
-        status: map['status'],
+        action: map['action'],
       ));
     });
     print(maps.length);

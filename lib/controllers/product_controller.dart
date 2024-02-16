@@ -142,7 +142,16 @@ class ProductController extends GetxController {
         },
       );
 
-      if (response.statusCode == 200) {}
+      if (response.statusCode == 200) {
+        // Extrair o novo ID do produto do corpo da resposta
+        final newProductId = response.data['result']['productId'];
+
+        // Atualizar o ID do produto
+        product.id = newProductId;
+
+        // Agora você pode prosseguir com a atualização no banco de dados local
+        await db.updateProduct(product);
+      }
     } catch (e) {
       print(e);
     }
@@ -197,7 +206,8 @@ class ProductController extends GetxController {
             "id": product.id,
             "name": product.name,
             "description": product.description,
-            "group": product.groups
+            "group": product.groups,
+            "action": product.action
           });
       Product.fromJson(response.data['result']);
     } catch (e) {
@@ -224,7 +234,7 @@ class ProductController extends GetxController {
     }
   }
 
-  Future<List<Product>> getProducts() async {
+  Future<void> getProducts() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userToken = prefs.getString('userToken') ?? 'null';
     dio.options.headers = {
@@ -239,15 +249,16 @@ class ProductController extends GetxController {
       if (response.data["result"] != null) {
         List<Product> products = (response.data["result"] as List)
             .map((data) => Product.fromJson(data))
+            .where((product) =>
+                product.action !=
+                'delete') // Filter out products with action 'delete'
             .toList();
 
         this.products.value = products;
+        await db.saveProducts(products);
       }
-
-      await db.saveProducts(products);
     } catch (e) {
       print(e);
     }
-    return products.value;
   }
 }

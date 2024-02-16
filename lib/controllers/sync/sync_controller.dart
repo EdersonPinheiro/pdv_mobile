@@ -59,8 +59,7 @@ class SyncController extends GetxController {
         await productController.changeProduct(product);
       },
       await db.getActionProduct(), // Função para obter itens offline de Product
-      (actionKey) =>
-          db.deleteActionDB(actionKey), // Função para deletar ação de Product
+      (actionKey) => db.deleteActionDB(actionKey),
     );
 
     await syncOfflineItems<TypeMoviment>(

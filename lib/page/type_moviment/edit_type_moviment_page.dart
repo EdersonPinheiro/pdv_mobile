@@ -28,15 +28,18 @@ class _EditTypeMovimentPageState extends State<EditTypeMovimentPage> {
   @override
   void initState() {
     super.initState();
-    getTypeMovimentsOff();
+    getTypeMovimentDB();
     typeMovimentController.localId.text = widget.typeMoviment.localId ?? '';
     typeMovimentController.name.text = widget.typeMoviment.name;
     typeMovimentController.type.text = widget.typeMoviment.type ?? '';
   }
 
-  Future<void> getTypeMovimentsOff() async {
-    await typeMovimentController.getTypeMovimentDB();
-    setState(() {});
+  Future<void> getTypeMovimentDB() async {
+    typeMovimentController.typeMoviments.value = await db.getTypeMovimentDB();
+    if (mounted) {
+      setState(() {
+      });
+    }
   }
 
   @override

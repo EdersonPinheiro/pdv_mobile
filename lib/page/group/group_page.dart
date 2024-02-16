@@ -29,70 +29,13 @@ class _GroupPageState extends State<GroupPage> {
   @override
   void initState() {
     super.initState();
-    groupController.getGroupsDB();
-    startLiveQueryG();
-  }
-
-  final LiveQuery liveQueryG = LiveQuery();
-  QueryBuilder<ParseObject> queryG =
-      QueryBuilder<ParseObject>(ParseObject("Group"));
-
-  Future<void> startLiveQueryG() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final setor = prefs.getString('setor');
-    Subscription subscriptionG = await liveQueryG.client.subscribe(queryG);
-
-    subscriptionG.on(LiveQueryEvent.create, (value) {
-      ParseObject? setorObject = value.get<ParseObject>("setor");
-      final setorParse = setorObject?.get("objectId");
-      if (setorParse == setor) {
-        groupController.handleLiveQueryEventCreate(
-            LiveQueryEvent.update, value);
-        if (mounted) {
-          setState(() {
-            getGroupsDB();
-          });
-        }
-      }
-    });
-
-    subscriptionG.on(LiveQueryEvent.update, (value) {
-      ParseObject? setorObject = value.get<ParseObject>("setor");
-      final setorParse = setorObject?.get("objectId");
-
-      if (setorParse == setor) {
-        groupController.handleLiveQueryEventUpdate(
-            LiveQueryEvent.update, value);
-        if (mounted) {
-          setState(() {
-            getGroupsDB();
-          });
-        }
-      }
-    });
-
-    subscriptionG.on(LiveQueryEvent.delete, (value) {
-      ParseObject? setorObject = value.get<ParseObject>("setor");
-      final setorParse = setorObject?.get("objectId");
-      if (setorParse == setor) {
-        groupController.handleLiveQueryEventDelete(
-            LiveQueryEvent.update, value);
-        if (mounted) {
-          setState(() {
-            getGroupsDB();
-          });
-        }
-      }
-    });
+    getGroupsDB();
   }
 
   Future<void> checkConnection() async {
-    syncController.isConn == true ? getGroupsOn() : getGroupsDB();
-  }
-
-  Future<void> getGroupsOn() async {
-    print("Get Groups On");
-    await groupController.getGroup();
+    syncController.isConn == true
+        ? groupController.getGroup()
+        : groupController.getGroupsDB();
   }
 
   Future<void> getGroupsDB() async {
@@ -116,7 +59,7 @@ class _GroupPageState extends State<GroupPage> {
         centerTitle: true,
       ),
       body: RefreshIndicator(
-        onRefresh: getGroupsDB,
+        onRefresh: checkConnection,
         child: Obx(() => ListView.builder(
               itemCount: groupController.groups.length,
               itemBuilder: (BuildContext context, int index) {

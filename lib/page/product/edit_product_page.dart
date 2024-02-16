@@ -135,8 +135,17 @@ class _EditProductPageState extends State<EditProductPage> {
                                 quantity: widget.product.quantity,
                                 description: controller.description.text,
                                 setor: widget.product.setor,
+                                action: 'delete'
                               );
-                              //await controller.deleteProductOffline(newProduct);
+                              if (syncController.isConn.value == true) {
+                                await db.updateProduct(newProduct);
+                                await controller.changeProduct(newProduct);
+                                Get.back();
+                              } else {
+                                await db.updateProduct(newProduct);
+                                await db.saveActionProduct(newProduct);
+                                Get.back();
+                              }
                               widget.reload();
                               Get.back();
                             },

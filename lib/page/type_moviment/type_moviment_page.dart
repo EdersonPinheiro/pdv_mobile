@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../constants/constants.dart';
 import '../../controllers/sync/sync_controller.dart';
 import '../../controllers/type_moviment_controller.dart';
-import '../../db/db.dart';
 import '../../model/type_moviment.dart';
 import 'create_type_moviment_page.dart';
 import 'edit_type_moviment_page.dart';
@@ -24,60 +23,12 @@ class _TypeMovimentPageState extends State<TypeMovimentPage> {
       Get.put(TypeMovimentController());
   final SyncController syncController = Get.find();
   final typeMoviments = <TypeMoviment>[].obs;
-  final db = DB();
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     getTypeMovimentDB();
-    startLiveQuery();
-  }
-
-  final LiveQuery liveQueryT = LiveQuery();
-  QueryBuilder<ParseObject> queryT =
-      QueryBuilder<ParseObject>(ParseObject("TypeMoviment"));
-
-  Future<void> startLiveQuery() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final setor = prefs.getString('setor')!;
-    Subscription subscription = await liveQueryT.client.subscribe(queryT);
-
-    subscription.on(LiveQueryEvent.create, (value) async {
-      if (value['setor'] == setor) {
-        await typeMovimentController.handleLiveQueryEventCreate(
-            LiveQueryEvent.create, value);
-        if (mounted) {
-          setState(() {
-            getTypeMovimentDB();
-          });
-        }
-      }
-    });
-
-    subscription.on(LiveQueryEvent.update, (value) async {
-      if (value['setor'] == setor) {
-        await typeMovimentController.handleLiveQueryEventUpdate(
-            LiveQueryEvent.update, value);
-        if (mounted) {
-          setState(() {
-            getTypeMovimentDB();
-          });
-        }
-      }
-    });
-
-    subscription.on(LiveQueryEvent.delete, (value) async {
-      if (value['setor'] == setor) {
-        await typeMovimentController.handleLiveQueryEventDelete(
-            LiveQueryEvent.delete, value);
-        if (mounted) {
-          setState(() {
-            getTypeMovimentDB();
-          });
-        }
-      }
-    });
   }
 
   Future<void> getTypeMovimentDB() async {
@@ -89,6 +40,12 @@ class _TypeMovimentPageState extends State<TypeMovimentPage> {
     }
   }
 
+  Future<void> checkConnection() async {
+    syncController.isConn == true
+        ? typeMovimentController.getTypeMoviment()
+        : typeMovimentController.getTypeMovimentDB();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,7 +54,7 @@ class _TypeMovimentPageState extends State<TypeMovimentPage> {
         centerTitle: true,
       ),
       body: RefreshIndicator(
-        onRefresh: getTypeMovimentDB,
+        onRefresh: checkConnection,
         child: Obx(() => ListView.builder(
               itemCount: typeMovimentController.typeMoviments.length,
               itemBuilder: (BuildContext context, int index) {
@@ -124,7 +81,7 @@ class _TypeMovimentPageState extends State<TypeMovimentPage> {
                         onPressed: () async {
                           Get.to(EditTypeMovimentPage(
                               typeMoviment: typeMoviment,
-                              reload: getTypeMovimentDB));
+                              reload: checkConnection));
                         },
                       ),
                     ),
@@ -136,7 +93,7 @@ class _TypeMovimentPageState extends State<TypeMovimentPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Get.to(CreateTypeMovimentPage(
-            reload: getTypeMovimentDB,
+            reload: checkConnection,
           ));
         },
         child: const Icon(Icons.add),

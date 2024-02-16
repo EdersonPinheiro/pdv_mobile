@@ -88,7 +88,7 @@ class GroupController extends GetxController {
     }
   }
 
-  Future<List<Group>> getGroup() async {
+  Future<void> getGroup() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userToken = prefs.getString('userToken') ?? 'null';
     dio.options.headers = {
@@ -112,7 +112,6 @@ class GroupController extends GetxController {
     } catch (e) {
       print(e);
     }
-    return groups;
   }
 
   Future<void> createGroup(Group group) async {
@@ -176,6 +175,7 @@ class GroupController extends GetxController {
             "id": group.id,
             "name": group.name,
             "description": group.description,
+            "action": group.action
           });
       Group.fromJson(response.data['result']);
     } catch (e) {

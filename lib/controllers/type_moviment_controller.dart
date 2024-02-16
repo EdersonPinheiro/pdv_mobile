@@ -24,11 +24,13 @@ class TypeMovimentController extends GetxController {
       TypeMoviment typeMoviment = TypeMoviment(
         id: value.get<String>('objectId').toString(),
         localId: value.get<String>('localId').toString(),
-        name: value.get<String>('name') ?? '',
+        name: value.get<String>('name').toString(),
         action: value.get<String>('action') ?? '',
-        type: value.get<String>('type') ?? '',
+        type: value.get<String>('type').toString(),
         setor: value.get('setor'),
       );
+
+      print("create");
 
       await db.addTypeMoviment(typeMoviment);
     } catch (e) {

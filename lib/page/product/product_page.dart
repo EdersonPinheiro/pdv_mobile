@@ -25,100 +25,7 @@ class _ProductPageState extends State<ProductsPage> {
   @override
   void initState() {
     super.initState();
-    //productController.getProducts();
     getProductsDB();
-    startLiveQuery();
-  }
-
-  final LiveQuery liveQuery = LiveQuery();
-  QueryBuilder<ParseObject> query =
-      QueryBuilder<ParseObject>(ParseObject("Product"));
-
-  Future<void> startLiveQuery() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final setor = prefs.getString('setor')!;
-    Subscription subscription = await liveQuery.client.subscribe(query);
-
-    subscription.on(LiveQueryEvent.create, (value) async {
-      ParseObject? setorObject = value.get<ParseObject>("setor");
-      final setorParse = setorObject?.get("objectId");
-
-      if (setorParse == setor) {
-        ParseObject? groupObject = value.get<ParseObject>("group");
-        final teste = groupObject?.get("objectId");
-
-        ParseObject? setorObject = value.get<ParseObject>("setor");
-        final setor = setorObject?.get("objectId");
-
-        Product product = Product(
-            id: value.get<String>('objectId').toString(),
-            localId: value.get<String>('localId').toString(),
-            name: value.get<String>('name') ?? '',
-            description: value.get<String>('description') ?? '',
-            quantity: value.get('quantity'),
-            groups: teste,
-            setor: setor);
-
-        await db.addProduct(product);
-        if (mounted) {
-          setState(() {
-            getProductsDB();
-          });
-        }
-      }
-    });
-
-    subscription.on(LiveQueryEvent.update, (value) async {
-      ParseObject? setorObject = value.get<ParseObject>("setor");
-      final setorParse = setorObject?.get("objectId");
-
-      if (setorParse == setor) {
-        ParseObject? groupObject = value.get<ParseObject>("group");
-        final teste = groupObject?.get("objectId");
-
-        Product product = Product(
-            id: value.get<String>('objectId').toString(),
-            localId: value.get<String>('localId').toString(),
-            name: value.get<String>('name') ?? '',
-            description: value.get<String>('description') ?? '',
-            quantity: value.get('quantity'),
-            groups: teste,
-            setor: setorParse);
-
-        await db.updateProduct(product);
-        if (mounted) {
-          setState(() {
-            getProductsDB();
-          });
-        }
-      }
-    });
-
-    subscription.on(LiveQueryEvent.delete, (value) async {
-      ParseObject? setorObject = value.get<ParseObject>("setor");
-      final setorParse = setorObject?.get("objectId");
-
-      if (setorParse == setor) {
-        ParseObject? groupObject = value.get<ParseObject>("group");
-        final teste = groupObject?.get("objectId");
-
-        Product product = Product(
-            id: value.get<String>('objectId').toString(),
-            localId: value.get<String>('localId').toString(),
-            name: value.get<String>('name') ?? '',
-            description: value.get<String>('description') ?? '',
-            quantity: value.get('quantity'),
-            groups: teste,
-            setor: setorParse);
-
-        await db.deleteProductDB(product);
-        if (mounted) {
-          setState(() {
-            getProductsDB();
-          });
-        }
-      }
-    });
   }
 
   Future<void> getProductsDB() async {
@@ -135,6 +42,12 @@ class _ProductPageState extends State<ProductsPage> {
     }
   }
 
+  Future<void> checkConnection() async {
+    syncController.isConn == true
+        ? productController.getProducts()
+        : productController.getProductsDB();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,7 +56,7 @@ class _ProductPageState extends State<ProductsPage> {
         centerTitle: true,
       ),
       body: RefreshIndicator(
-        onRefresh: getProductsDB,
+        onRefresh: checkConnection,
         child: Obx(() => ListView.builder(
               itemCount: productController.products.length,
               itemBuilder: (BuildContext context, int index) {
@@ -168,7 +81,7 @@ class _ProductPageState extends State<ProductsPage> {
                         icon: const Icon(Icons.edit),
                         onPressed: () async {
                           Get.to(() => EditProductPage(
-                              product: product, reload: getProductsDB));
+                              product: product, reload: checkConnection));
                         },
                       ),
                     ),
@@ -180,7 +93,7 @@ class _ProductPageState extends State<ProductsPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Get.to(CreateProductPage(
-            reload: getProductsDB,
+            reload: checkConnection,
           ));
         },
         child: const Icon(Icons.add),

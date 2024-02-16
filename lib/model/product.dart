@@ -21,6 +21,7 @@ class Product {
 
   Map<String, dynamic> toJsonDB() {
     return {
+      'id': id,
       'name': name,
       'quantity': quantity,
       'groups': groups,
@@ -52,7 +53,7 @@ class Product {
         groups: json['group'],
         description: json['description'] ?? '',
         setor: json['setor'],
-        action: json['action'] ?? '');
+        action: json['action']);
   }
 
   @override
