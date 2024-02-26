@@ -25,7 +25,6 @@ class GroupController extends GetxController {
       element.name;
     }
     print(groups.value);
-   
   }
 
   Future<bool> handleLiveQueryEventCreate(
@@ -137,22 +136,14 @@ class GroupController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        String objectId = response.data['result'].toString();
+        // Extrair o novo ID do produto do corpo da resposta
+        final newGroupId = response.data['result']['groupId'];
 
-        // Update the locally saved group information in SharedPreferences
-        List<String> groupList = prefs.getStringList('offlineGroups') ?? [];
+        // Atualizar o ID do produto
+        group.id = newGroupId;
 
-        for (int i = 0; i < groupList.length; i++) {
-          Map<String, dynamic> groupJson = jsonDecode(groupList[i]);
-
-          if (groupJson['localId'] == group.id) {
-            groupJson['id'] = objectId; // Assuming the field is objectId
-            groupList[i] = jsonEncode(groupJson);
-            break;
-          }
-        }
-
-        prefs.setStringList('offlineGroups', groupList);
+        // Agora você pode prosseguir com a atualização no banco de dados local
+        await db.updateGroups(group);
       }
     } catch (e) {
       print(e);

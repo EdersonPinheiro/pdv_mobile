@@ -81,14 +81,13 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                           if (syncController.isConn.value == true) {
                             controller.createGroup(newGroup);
                             Get.back();
+                              widget.reload();
                           } else {
                             await db.addGroup(newGroup);
                             await db.saveActionGroup(newGroup);
                             Get.back();
                             widget.reload();
                           }
-                          Get.back();
-                          widget.reload();
                         },
                         child: Text('Criar')),
                   ],

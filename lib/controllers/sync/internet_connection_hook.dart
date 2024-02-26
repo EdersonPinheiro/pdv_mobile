@@ -19,5 +19,4 @@ class InternetConnectionHook {
     _subscription = null;
     _streamController.close();
   }
-  
 }

@@ -50,6 +50,30 @@ class SyncController extends GetxController {
   }
 
   Future<void> sync() async {
+    await syncOfflineItems<TypeMoviment>(
+      'actiontypemoviment',
+      (typeMoviment) async {
+        await typeMovimentController.createTypeMoviment(typeMoviment);
+      },
+      (typeMoviment) async {
+        await typeMovimentController.changeTypeMoviment(typeMoviment);
+      },
+      await db.getActionTypeMoviment(),
+      (actionKey) => db.deleteActionDB(actionKey),
+    );
+
+    await syncOfflineItems<Group>(
+      'actiongroups',
+      (group) async {
+        await groupController.createGroup(group);
+      },
+      (group) async {
+        await groupController.editGroup(group);
+      },
+      await db.getActionGroup(),
+      (actionKey) => db.deleteActionDB(actionKey),
+    );
+
     await syncOfflineItems<Product>(
       'actionproduct',
       (product) async {
@@ -60,19 +84,6 @@ class SyncController extends GetxController {
       },
       await db.getActionProduct(), // Função para obter itens offline de Product
       (actionKey) => db.deleteActionDB(actionKey),
-    );
-
-    await syncOfflineItems<TypeMoviment>(
-      'actiontypemoviment',
-      (typeMoviment) async {
-        await typeMovimentController.createTypeMoviment(typeMoviment);
-      },
-      (typeMoviment) async {
-        await typeMovimentController.changeTypeMoviment(typeMoviment);
-      },
-      await db.getActionTypeMoviment(),
-      (actionKey) => db.deleteActionDB(
-          actionKey), // Função para deletar ação de TypeMoviment
     );
   }
 
@@ -85,18 +96,25 @@ class SyncController extends GetxController {
   ) async {
     List<T> offlineItems = getOfflineItems;
     for (T item in offlineItems) {
-      if (item is Product) {
-        Product product = item as Product;
-        if (product.action == "new") {
-          createItem(item);
-        } else if (product.action == "edit") {
-          editItem(item);
-        }
-      } else if (item is TypeMoviment) {
+      if (item is TypeMoviment) {
         TypeMoviment typeMoviment = item as TypeMoviment;
         if (typeMoviment.action == "new") {
           createItem(item);
         } else if (typeMoviment.action == "edit") {
+          editItem(item);
+        }
+      } else if (item is Group) {
+        Group group = item as Group;
+        if (group.action == "new") {
+          createItem(item);
+        } else if (group.action == "edit") {
+          editItem(item);
+        }
+      } else if (item is Product) {
+        Product product = item as Product;
+        if (product.action == "new") {
+          createItem(item);
+        } else if (product.action == "edit") {
           editItem(item);
         }
       }

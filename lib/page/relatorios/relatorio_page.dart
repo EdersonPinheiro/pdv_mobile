@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:meu_estoque/page/relatorios/relatorio_estoque_atual.dart';
 
 class RelatoriosPage extends StatefulWidget {
   const RelatoriosPage({super.key});
@@ -21,8 +23,7 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
           children: [
             ElevatedButton(
               onPressed: () {
-                // Navegar para o relatório de estoque atual
-                Navigator.pushNamed(context, '/relatorio-estoque-atual');
+                Get.to(RelatorioEstoqueAtual());
               },
               child: Text('Relatório de Estoque Atual'),
             ),

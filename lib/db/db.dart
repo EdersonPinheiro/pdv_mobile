@@ -23,7 +23,7 @@ class DB {
 
   Future<Database> initDB() async {
     var databasesPath = await getDatabasesPath();
-    String path = join(databasesPath, "nkmuzl");
+    String path = join(databasesPath, "nkmnl");
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
@@ -62,8 +62,7 @@ class DB {
         name TEXT,
         description TEXT,
         setor TEXT,
-        status TEXT,
-        sync TEXT
+        action TEXT
       )
 ''');
   }
@@ -154,9 +153,8 @@ class DB {
         localId TEXT,
         name TEXT,
         description TEXT,
-        status TEXT,
         setor TEXT,
-        sync TEXT
+        action TEXT
       )
     ''');
   }
@@ -367,8 +365,7 @@ class DB {
     final dbClient = await db;
     return await dbClient.update(
       'product',
-      product
-          .toJsonDB(),
+      product.toJsonDB(),
       where: 'localId = ?',
       whereArgs: [product.localId],
     );
@@ -526,8 +523,7 @@ class DB {
     final dbClient = await db;
     return await dbClient.update(
       'typemoviment',
-      typeMoviment
-          .toJson(),
+      typeMoviment.toJson(),
       where: 'id = ?' ?? 'localId = ?',
       whereArgs: [typeMoviment.id ?? typeMoviment.localId],
     );
@@ -546,7 +542,7 @@ class DB {
   }
 
   Future<List<TypeMoviment>> getActionTypeMoviment() async {
-    print("Action Moviment");
+    print("Action TypeMoviment");
     final dbClient = await db;
     final List<Map<String, dynamic>> maps =
         await dbClient.query('actiontypemoviment');
@@ -681,8 +677,8 @@ class DB {
     return await dbClient.update(
       'groups',
       groups.toJsonDB(),
-      where: 'id = ?' ?? 'localId = ?',
-      whereArgs: [groups.id ?? groups.localId],
+      where: 'localId = ?',
+      whereArgs: [groups.localId],
     );
   }
 
@@ -729,13 +725,13 @@ class DB {
       'localId': group.localId,
       'name': group.name,
       'description': group.description,
-      'status': group.action,
       'setor': group.setor,
+      'action': group.action
     });
   }
 
   Future<List<Group>> getActionGroup() async {
-    print("Action Product");
+    print("Action Group");
     final dbClient = await db;
     final List<Map<String, dynamic>> maps =
         await dbClient.query('actiongroups');
@@ -746,6 +742,7 @@ class DB {
         localId: map['localId'],
         name: map['name'],
         description: map['description'],
+        setor: map['setor'],
         action: map['action'],
       ));
     });

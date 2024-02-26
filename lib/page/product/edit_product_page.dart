@@ -128,15 +128,14 @@ class _EditProductPageState extends State<EditProductPage> {
                           child: ElevatedButton(
                             onPressed: () async {
                               final newProduct = Product(
-                                id: widget.product.id,
-                                localId: widget.product.localId,
-                                name: controller.name.text,
-                                groups: controller.group.text,
-                                quantity: widget.product.quantity,
-                                description: controller.description.text,
-                                setor: widget.product.setor,
-                                action: 'delete'
-                              );
+                                  id: widget.product.id,
+                                  localId: widget.product.localId,
+                                  name: controller.name.text,
+                                  groups: controller.group.text,
+                                  quantity: widget.product.quantity,
+                                  description: controller.description.text,
+                                  setor: widget.product.setor,
+                                  action: 'delete');
                               if (syncController.isConn.value == true) {
                                 await db.updateProduct(newProduct);
                                 await controller.changeProduct(newProduct);
@@ -147,7 +146,6 @@ class _EditProductPageState extends State<EditProductPage> {
                                 Get.back();
                               }
                               widget.reload();
-                              Get.back();
                             },
                             child: const Text('Excluir'),
                             style: ButtonStyle(
@@ -178,13 +176,13 @@ class _EditProductPageState extends State<EditProductPage> {
                                 await db.updateProduct(newProduct);
                                 await controller.changeProduct(newProduct);
                                 Get.back();
+                                widget.reload();
                               } else {
                                 await db.updateProduct(newProduct);
                                 await db.saveActionProduct(newProduct);
                                 Get.back();
+                                widget.reload();
                               }
-                              widget.reload();
-                              Get.back();
                             },
                             child: const Text('Salvar'),
                           ),

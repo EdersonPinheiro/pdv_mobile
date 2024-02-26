@@ -1,6 +1,7 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:meu_estoque/model/type_moviment.dart';
 import 'package:meu_estoque/page/relatorios/relatorio_estoque_atual.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,6 +11,7 @@ import '../../controllers/product_controller.dart';
 import '../../controllers/sync/sync_controller.dart';
 import '../../controllers/type_moviment_controller.dart';
 import '../../controllers/user_controller.dart';
+import '../../model/group.dart';
 import '../../model/product.dart';
 import '../../model/user.dart';
 import '../auth/login_page.dart';
@@ -75,9 +77,18 @@ class _HomePageState extends State<HomePage> {
                 color: syncController.isConn.value ? Colors.green : Colors.red,
               ),
               onPressed: () async {
+                List<TypeMoviment> actionTypeMoviment =
+                    await db.getActionTypeMoviment();
+                List<Group> actionGroups = await db.getActionGroup();
                 List<Product> actionProducts = await db.getActionProduct();
                 actionProducts.forEach((product) {
-                  print(product); // Imprime o objeto Product
+                  print(product); 
+                });
+                actionGroups.forEach((group) {
+                  print(group);
+                });
+                actionTypeMoviment.forEach((typeMoviment) {
+                  print(typeMoviment);
                 });
               },
             );
