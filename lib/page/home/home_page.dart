@@ -5,6 +5,7 @@ import 'package:meu_estoque/model/type_moviment.dart';
 import 'package:meu_estoque/page/relatorios/relatorio_estoque_atual.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../card/create_one_step_card.dart';
 import '../../constants/constants.dart';
 import '../../controllers/group_controller.dart';
 import '../../controllers/product_controller.dart';
@@ -23,6 +24,8 @@ import '../group/group_page.dart';
 import '../moviment/moviment_page.dart';
 import '../product/product_page.dart';
 import '../type_moviment/type_moviment_page.dart';
+import 'package:efipay/efipay.dart';
+import '../../credentials.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -36,6 +39,7 @@ class _HomePageState extends State<HomePage> {
   final GroupController groupController = Get.put(GroupController());
   final TypeMovimentController typeMovimentController =
       Get.put(TypeMovimentController());
+      
   @override
   void initState() {
     super.initState();
@@ -77,7 +81,18 @@ class _HomePageState extends State<HomePage> {
                 color: syncController.isConn.value ? Colors.green : Colors.red,
               ),
               onPressed: () async {
-                List<TypeMoviment> actionTypeMoviment =
+                credentials.remove('certificate');
+                EfiPay efi = EfiPay(credentials);
+                Map<String, Object> card = {
+                  "brand": "visa",
+                  "number": "4485388557842262",
+                  "cvv": "572",
+                  "expiration_month": "08",
+                  "expiration_year": "2024"
+                };
+                dynamic response = await createOneStepCharge(efi, card);
+                print(response);
+                /*List<TypeMoviment> actionTypeMoviment =
                     await db.getActionTypeMoviment();
                 List<Group> actionGroups = await db.getActionGroup();
                 List<Product> actionProducts = await db.getActionProduct();
@@ -89,7 +104,7 @@ class _HomePageState extends State<HomePage> {
                 });
                 actionTypeMoviment.forEach((typeMoviment) {
                   print(typeMoviment);
-                });
+                });*/
               },
             );
           }),

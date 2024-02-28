@@ -5,11 +5,11 @@ void main() async {
   credentials.remove('certificate');
   EfiPay efi = EfiPay(credentials);
   Map<String, Object> card = {
-    "brand": "visa",
-    "number": "4485388557842262",
-    "cvv": "572",
-    "expiration_month": "08",
-    "expiration_year": "2024"
+    "brand": "mastercard",
+    "number": "2310249700625860",
+    "cvv": "008",
+    "expiration_month": "05",
+    "expiration_year": "2027"
   };
   dynamic response = await createOneStepCharge(efi, card);
   print(response);
