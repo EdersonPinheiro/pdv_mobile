@@ -2,10 +2,12 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meu_estoque/model/type_moviment.dart';
+import 'package:meu_estoque/page/payment/open-finance/create_open_finance_payment.dart';
+import 'package:meu_estoque/page/payment/open-finance/list_participants.dart';
 import 'package:meu_estoque/page/relatorios/relatorio_estoque_atual.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../card/create_one_step_card.dart';
+import '../payment/card/create_one_step_card_payment.dart';
 import '../../constants/constants.dart';
 import '../../controllers/group_controller.dart';
 import '../../controllers/product_controller.dart';
@@ -39,7 +41,7 @@ class _HomePageState extends State<HomePage> {
   final GroupController groupController = Get.put(GroupController());
   final TypeMovimentController typeMovimentController =
       Get.put(TypeMovimentController());
-      
+
   @override
   void initState() {
     super.initState();
@@ -73,39 +75,58 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.indigo,
         actions: [
           Obx(() {
-            return IconButton(
-              icon: Icon(
-                syncController.isConn.value == true
-                    ? Icons.signal_wifi_4_bar
-                    : Icons.wifi_off,
-                color: syncController.isConn.value ? Colors.green : Colors.red,
-              ),
-              onPressed: () async {
-                credentials.remove('certificate');
-                EfiPay efi = EfiPay(credentials);
-                Map<String, Object> card = {
-                  "brand": "visa",
-                  "number": "4485388557842262",
-                  "cvv": "572",
-                  "expiration_month": "08",
-                  "expiration_year": "2024"
-                };
-                dynamic response = await createOneStepCharge(efi, card);
-                print(response);
-                /*List<TypeMoviment> actionTypeMoviment =
-                    await db.getActionTypeMoviment();
-                List<Group> actionGroups = await db.getActionGroup();
-                List<Product> actionProducts = await db.getActionProduct();
-                actionProducts.forEach((product) {
-                  print(product); 
-                });
-                actionGroups.forEach((group) {
-                  print(group);
-                });
-                actionTypeMoviment.forEach((typeMoviment) {
-                  print(typeMoviment);
-                });*/
-              },
+            return Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                    syncController.isConn.value == true
+                        ? Icons.signal_wifi_4_bar
+                        : Icons.wifi_off,
+                    color:
+                        syncController.isConn.value ? Colors.green : Colors.red,
+                  ),
+                  onPressed: () async {
+                    createCharge();
+                    /*List<TypeMoviment> actionTypeMoviment =
+                        await db.getActionTypeMoviment();
+                    List<Group> actionGroups = await db.getActionGroup();
+                    List<Product> actionProducts = await db.getActionProduct();
+                    actionProducts.forEach((product) {
+                      print(product); 
+                    });
+                    actionGroups.forEach((group) {
+                      print(group);
+                    });
+                    actionTypeMoviment.forEach((typeMoviment) {
+                      print(typeMoviment);
+                    });*/
+                  },
+                ),
+                IconButton(
+                  icon: Icon(
+                    syncController.isConn.value == true
+                        ? Icons.supervisor_account
+                        : Icons.supervisor_account,
+                    color:
+                        syncController.isConn.value ? Colors.green : Colors.red,
+                  ),
+                  onPressed: () async {
+                    getParticipants();
+                  },
+                ),
+                IconButton(
+                  icon: Icon(
+                    syncController.isConn.value == true
+                        ? Icons.account_balance
+                        : Icons.account_balance,
+                    color:
+                        syncController.isConn.value ? Colors.green : Colors.red,
+                  ),
+                  onPressed: () async {
+                    createOpenFinance();
+                  },
+                ),
+              ],
             );
           }),
         ],
