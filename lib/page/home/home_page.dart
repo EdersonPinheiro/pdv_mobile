@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
                         syncController.isConn.value ? Colors.green : Colors.red,
                   ),
                   onPressed: () async {
-                    createCharge();
+                    //createCharge();
                     /*List<TypeMoviment> actionTypeMoviment =
                         await db.getActionTypeMoviment();
                     List<Group> actionGroups = await db.getActionGroup();
@@ -100,30 +100,6 @@ class _HomePageState extends State<HomePage> {
                     actionTypeMoviment.forEach((typeMoviment) {
                       print(typeMoviment);
                     });*/
-                  },
-                ),
-                IconButton(
-                  icon: Icon(
-                    syncController.isConn.value == true
-                        ? Icons.supervisor_account
-                        : Icons.supervisor_account,
-                    color:
-                        syncController.isConn.value ? Colors.green : Colors.red,
-                  ),
-                  onPressed: () async {
-                    getParticipants();
-                  },
-                ),
-                IconButton(
-                  icon: Icon(
-                    syncController.isConn.value == true
-                        ? Icons.account_balance
-                        : Icons.account_balance,
-                    color:
-                        syncController.isConn.value ? Colors.green : Colors.red,
-                  ),
-                  onPressed: () async {
-                    createOpenFinance();
                   },
                 ),
               ],

@@ -9,7 +9,7 @@ import '../model/order.dart';
 import '../page/payment/pix_payment.dart';
 
 class CheckoutController {
-  Future<void> checkout() async {
+  Future<void> checkoutPix() async {
     try {
       final response = await Dio().post('$b4a/checkout',
           options: Options(

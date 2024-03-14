@@ -19,7 +19,7 @@ class AuthController {
         options: Options(
           headers: {
             'X-Parse-Application-Id': KeyApplicationId,
-            'X-Parse-REST-API-Key': KeyClientKey ,
+            'X-Parse-REST-API-Key': KeyClientKey,
           },
         ),
         data: {"email": email, "password": password},
@@ -32,9 +32,10 @@ class AuthController {
           await prefs.setString('userToken', result['token']);
           await prefs.setString('fullname', result['fullname']);
           await prefs.setString('setor', result['setor']);
-          userToken = result['token'] as String;
-          fullname = result['fullname'] as String;
-          setor = result['setor'] as String;
+          userToken = result['token'];
+          fullname = result['fullname'];
+          setor = result['setor'];
+          prefs.setString('userToken', userToken);
           return true;
         } else {
           print('Token not found in API response');
@@ -56,8 +57,7 @@ class AuthController {
         'https://parseapi.back4app.com/parse/functions/create_account',
         options: Options(
           headers: {
-            'X-Parse-Application-Id':
-                KeyApplicationId,
+            'X-Parse-Application-Id': KeyApplicationId,
             'X-Parse-REST-API-Key': KeyClientKey,
           },
         ),
@@ -78,8 +78,7 @@ class AuthController {
           print('Token not found in API response');
           // Lógica para lidar com a ausência do campo "token" na resposta
         }
-        Get.off(
-          SplashScreenPage());
+        Get.off(SplashScreenPage());
       }
     } catch (e) {
       print(e);
@@ -116,8 +115,7 @@ class AuthController {
         'https://parseapi.back4app.com/parse/functions/reset-password',
         options: Options(
           headers: {
-            'X-Parse-Application-Id':
-                KeyApplicationId,
+            'X-Parse-Application-Id': KeyApplicationId,
             'X-Parse-REST-API-Key': KeyClientKey,
           },
         ),

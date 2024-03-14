@@ -1,16 +1,17 @@
 import 'package:efipay/efipay.dart';
+import 'package:meu_estoque/model/product.dart';
 import '../../../../credentials.dart';
 
-void createCharge() async {
+void createCharge(bandeira, numero, cvv, mes_exp, ano_exp) async {
   try {
     credentials.remove('certificate');
     EfiPay efi = EfiPay(credentials);
     Map<String, Object> card = {
-      "brand": "visa",
-      "number": "4660690020250214",
-      "cvv": "118",
-      "expiration_month": "03",
-      "expiration_year": "2023"
+      "brand": bandeira,
+      "number": numero,
+      "cvv": cvv,
+      "expiration_month": mes_exp,
+      "expiration_year": ano_exp
     };
     dynamic response = await createOneStepCharge(efi, card, 6);
     print(response);

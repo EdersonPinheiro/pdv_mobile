@@ -244,7 +244,7 @@ class ProductController extends GetxController {
     };
 
     try {
-      final response = await dio.post('$b4a/get-all-products');
+      final response = await dio.post('$b4a/get-all-product');
 
       if (response.data["result"] != null) {
         List<Product> products = (response.data["result"] as List)
