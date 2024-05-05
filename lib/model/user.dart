@@ -1,27 +1,15 @@
 class User {
-  String id;
-  String fullname;
+  String fullName;
   String email;
-  String setor;
-  bool? premium;
+  String phone;
 
-  User({
-    required this.id,
-    required this.fullname,
-    required this.email,
-    required this.setor,
-    this.premium,
-  });
+  User({required this.fullName, required this.email, required this.phone});
 
   factory User.fromJson(Map<String, dynamic> json) {
-    // Extracting the 'setor' as a Map.
-    Map<String, dynamic> setor = json['setor'];
     return User(
-      id: json['objectId'],
-      fullname: json['fullname'],
-      email: json['email'],
-      setor: setor['name'],
-      premium: setor['premium'] is bool ? setor['premium'] : bool.tryParse(setor['premium'].toString()) ?? false,
+      fullName: json['fullname'] ?? '',
+      email: json['email'] ?? '',
+      phone: json['phone'] ?? '',
     );
   }
 }

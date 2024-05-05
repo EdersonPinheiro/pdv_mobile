@@ -5,13 +5,11 @@ class SubscriptionCard extends StatelessWidget {
   final String title;
   final String description;
   final List<Widget> widgets;
-  final Widget buy;
 
   SubscriptionCard({
     required this.title,
     required this.description,
     required this.widgets,
-    required this.buy
   });
 
   @override
@@ -48,7 +46,6 @@ class SubscriptionCard extends StatelessWidget {
               Column(
                 children: widgets,
               ),
-              buy
             ],
           ),
         ),

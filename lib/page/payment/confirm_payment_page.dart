@@ -2,7 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:meu_estoque/page/home/home_page.dart';
+
+import '../home_page.dart';
 
 class ConfirmPaymentPage extends StatefulWidget {
   const ConfirmPaymentPage({super.key});

@@ -1,34 +1,62 @@
+
+import 'product.dart';
+
+enum TipoDesconto { Percentual, Dinheiro }
+
 class Order {
-  final String id;
-  final String qrCodeImage;
-  final num total;
-  final String copiaecola;
-  final DateTime? createdAt;
-  late final String status;
+  final String? id;
+  final String localId;
+  final String type;
+  final int date;
+  String? clienteId;
+  String? clienteNome;
+  final String vendedor;
+  final List<Product> product;
+  String? valorFrete;
+  late String? formaPagamento;
+  String total; // Change to String
+  String subtotal; // Change to String
+  String? desconto; // Change to String
+  TipoDesconto? tipoDesconto;
 
-  Order(
-      {required this.id,
-      required this.qrCodeImage,
-      required this.total,
-      required this.copiaecola,
-      this.createdAt, required this.status});
+  Order({
+    this.id,
+    required this.localId,
+    required this.type,
+    required this.date,
+    this.clienteId,
+    this.clienteNome,
+    required this.vendedor,
+    required this.product,
+    this.valorFrete,
+    this.formaPagamento,
+    required this.total,
+    required this.subtotal,
+    this.desconto,
+    this.tipoDesconto,
+  });
 
-  factory Order.fromJson(Map<String, dynamic> json) {
-    return Order(
-        id: json['id'],
-        qrCodeImage: json['qrCodeImage'],
-        total: json['total'],
-        copiaecola: json['copiaecola'],
-        createdAt: DateTime.parse(json['createdAt']), status: json['status'] ?? 'pending_payment');
-  }
+  String calculateTotal() {
+    double calculatedTotal = double.parse(subtotal); // Start with subtotal
 
-  factory Order.toJson(Map<String, dynamic> json) {
-    return Order(
-      id: json['id'],
-      qrCodeImage: json['qrCodeImage'],
-      total: json['total'],
-      copiaecola: json['copiaecola'],
-      status: json['status'],
-    );
+    for (var product in product) {
+      calculatedTotal +=
+          product.quantitySelected * double.parse(product.priceSell);
+    }
+
+    if (valorFrete != null) {
+      calculatedTotal += double.parse(valorFrete!);
+    }
+
+    if (desconto != null) {
+      if (tipoDesconto == TipoDesconto.Percentual) {
+        calculatedTotal -= calculatedTotal * (double.parse(desconto!) / 100);
+      } else {
+        calculatedTotal -= double.parse(desconto!);
+      }
+    }
+
+    total = calculatedTotal.toString();
+    return total;
   }
 }

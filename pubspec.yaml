@@ -1,4 +1,4 @@
-name: meu_estoque
+name: pdv_mobile
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -33,16 +33,20 @@ dependencies:
   get:
   dio:
   shared_preferences:
-  uuid:
-  event_bus:
-  get_it:
-  animated_text_kit:
-  pdf:
-  path_provider:
-  open_file_plus:
-  parse_server_sdk_flutter:
   sqflite:
-  efipay: ^1.0.4
+  uuid:
+  image_picker: ^0.8.7
+  open_file: ^3.1.0
+  path_provider: ^2.0.1
+  cpf_cnpj_validator: ^2.0.0
+  intl:
+  flutter_barcode_scanner:
+  flutter_pdfview:
+  pdf:
+  share:
+  fl_chart:
+  animated_text_kit:
+  efipay: ^1.0.3
 
 
   # The following adds the Cupertino Icons font to your application.

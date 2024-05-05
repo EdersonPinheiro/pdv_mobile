@@ -1,170 +1,275 @@
-import 'package:dio/dio.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../constants/constants.dart';
-import '../../controllers/group_controller.dart';
-import '../../controllers/product_controller.dart';
-import '../../controllers/sync/sync_controller.dart';
+import '../../controller/product_controller.dart';
+import '../../db/db.dart';
 import '../../model/product.dart';
 
 class CreateProductPage extends StatefulWidget {
-  //final Function sync;
   final Function reload;
-  const CreateProductPage(
-      {super.key, /*required this.sync*/ required this.reload});
+
+  const CreateProductPage({Key? key, required this.reload}) : super(key: key);
+
   @override
   _CreateProductPageState createState() => _CreateProductPageState();
 }
 
 class _CreateProductPageState extends State<CreateProductPage> {
-  final ProductController controller = Get.put(ProductController());
-  final GroupController groupController = Get.put(GroupController());
-  final SyncController syncController = Get.put(SyncController());
-
-  final Dio dio = Dio();
-  final _formKey = GlobalKey<FormState>();
-  static const uuid = Uuid();
-  String? _selectedGroup;
-  List _groupList = [];
+  
+  late TextEditingController _imageController;
+  late TextEditingController _nameController;
+  late TextEditingController _groupsController;
+  late TextEditingController _quantityController;
+  late TextEditingController _priceSellController;
+  late TextEditingController _priceBuyController;
+  late TextEditingController _codBarrasController; // Novo controller
+  ProductController controller = ProductController();
+  final db = DB();
+  final ImagePicker _picker = ImagePicker();
+  XFile? imageFile;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    controller.getProductsDB();
-    getGroupsDB();
+    _imageController = TextEditingController();
+    _nameController = TextEditingController();
+    _groupsController = TextEditingController();
+    _quantityController = TextEditingController();
+    _priceSellController = TextEditingController();
+    _priceBuyController = TextEditingController();
+    _codBarrasController =
+        TextEditingController(); // Inicialização do novo controller
   }
 
-  Future<void> getGroupsDB() async {
-    _groupList = await db.getGroupDB();
-    for (var element in groupController.groups) {
-      element.name;
+  @override
+  void dispose() {
+    _imageController.dispose();
+    _nameController.dispose();
+    _groupsController.dispose();
+    _quantityController.dispose();
+    _priceSellController.dispose();
+    _priceBuyController.dispose();
+    _codBarrasController.dispose(); // Dispose do novo controller
+    super.dispose();
+  }
+
+  Future<void> _scanBarcode() async {
+    try {
+      String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          'COLOR_CODE', 'CANCEL_BUTTON_TEXT', true, ScanMode.DEFAULT);
+      setState(() {
+        _codBarrasController.text = barcodeScanRes;
+      });
+    } catch (e) {
+      print('Erro ao escanear código de barras: $e');
     }
-    print(groupController.groups.value);
-    if (mounted) {
-      setState(() {});
+  }
+
+  Future<void> _pickImageGalery() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      final File file = File(image.path);
+      imageFile = image;
+
+      setState(() {
+        _imageController.text =
+            image.path; // Usar image.path em vez de imageFile.toString()
+      });
     }
+  }
+
+  Future<void> _pickImageCamera(ImageSource source) async {
+    final XFile? image = await _picker.pickImage(source: source);
+    if (image != null) {
+      final File file = File(image.path);
+      // Salvar a imagem no armazenamento local
+      final appDir = await getApplicationDocumentsDirectory();
+      final fileName =
+          image.path.split('/').last; // Extrair o nome do arquivo manualmente
+      final savedImage = await file.copy('${appDir.path}/$fileName');
+
+      imageFile = XFile(savedImage.path); // Corrigindo o tipo de arquivo aqui
+      setState(() {
+        _imageController.text = savedImage.path;
+      });
+    }
+  }
+
+  Widget _buildSelectedImage() {
+    if (imageFile == null) {
+      return SizedBox
+          .shrink(); // Retorna um widget vazio se nenhuma imagem for selecionada
+    } else {
+      return Image.file(File(imageFile!.path));
+    }
+  }
+
+  Future<void> _showImageSourceDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Escolher origem da imagem'),
+          content: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _pickImageGalery();
+                },
+                icon: Icon(Icons.image_search_sharp),
+                label: Text('Galeria'),
+              ),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _pickImageCamera(ImageSource.camera);
+                },
+                icon: Icon(Icons.camera_alt),
+                label: Text('Câmera'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Produto"),
-        centerTitle: true,
+        title: Text('Create Product'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Center(
-            child: Form(
-              key: _formKey,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: <Widget>[
-                    SizedBox(height: 16.0),
-                    TextFormField(
-                      controller: controller.name,
-                      decoration: const InputDecoration(
-                        labelText: 'Nome',
-                      ),
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Insira o nome';
-                        }
-                        return null;
-                      },
-                    ),
-                    TextFormField(
-                      keyboardType: TextInputType.number,
-                      controller: controller.quantity,
-                      decoration: const InputDecoration(
-                        labelText: 'Quantidade',
-                      ),
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Insira a quantidade';
-                        } else if (int.tryParse(value) == null) {
-                          return "A quantidade deve conter apenas números";
-                        } else if (int.parse(value) <= 0) {
-                          return "A quantidade deve ser maior que zero";
-                        }
-                        return null;
-                      },
-                    ),
-                    DropdownButtonFormField(
-                      value: _selectedGroup,
-                      onChanged: (String? value) {
-                        print("Dropdown onChanged triggered");
-                        print("Selected Value: $value");
-                        setState(() {
-                          _selectedGroup = value;
-                          controller.group.text = value ?? '';
-                        });
-                        print(
-                            "Controller Group Text: ${controller.group.text}");
-                        print("Selected Group: $_selectedGroup");
-                      },
-                      items: _groupList.map((group) {
-                        return DropdownMenuItem<String>(
-                          value: group.id ?? group.localId,
-                          child: Text(group.name),
-                        );
-                      }).toList(),
-                      decoration: const InputDecoration(
-                        labelText: 'Grupo',
-                      ),
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Defina o grupo do produto';
-                        }
-                        return null;
-                      },
-                    ),
-                    TextFormField(
-                      controller: controller.description,
-                      decoration: const InputDecoration(
-                        labelText: 'Descrição',
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                        onPressed: () async {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          controller.setor.text =
-                              prefs.getString('setor').toString();
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.0),
+        child: Form(
+          key: formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              SizedBox(height: 12.0),
+              _buildSelectedImage(),
+              SizedBox(height: 24.0),
+              IconButton(
+                  onPressed: _showImageSourceDialog,
+                  icon: Icon(Icons.image_search_sharp)),
+              TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'Nome',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira o nome do produto';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 12.0),
+              TextFormField(
+                controller: _groupsController,
+                decoration: InputDecoration(
+                  labelText: 'Grupo',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira o grupo do produto';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 12.0),
+              TextFormField(
+                controller: _quantityController,
+                decoration: InputDecoration(
+                  labelText: 'Quantidade',
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira a quantidade do produto';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 12.0),
+              TextFormField(
+                controller: _priceSellController,
+                decoration: InputDecoration(
+                  labelText: 'Preço Venda',
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira o preço de venda do produto';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 12.0),
+              TextFormField(
+                controller: _priceBuyController,
+                decoration: InputDecoration(
+                  labelText: 'Preço Compra',
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira o preço de compra do produto';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 12.0),
+              TextFormField(
+                controller:
+                    _codBarrasController, // Ligação do controller ao campo de texto
+                decoration: InputDecoration(
+                  labelText: 'Código de Barras', // Rótulo do campo de texto
+                ),
+                
+              ),
+              SizedBox(height: 24.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (formKey.currentState!.validate()) {
                           const uuid = Uuid();
                           final newProduct = Product(
-                              id: '',
-                              localId: uuid.v4(),
-                              name: controller.name.text,
-                              groups: _selectedGroup.toString(),
-                              quantity: int.parse(controller.quantity.text),
-                              description: controller.description.text,
-                              setor: controller.setor.text,
-                              action: 'new');
-                          if (syncController.isConn.value == true) {
-                            await controller.createProduct(newProduct);
-                            widget.reload();
-                            Get.back();
-                          } else {
-                            await db.addProduct(newProduct);
-                            await db.saveActionProduct(newProduct);
-                            widget.reload();
-                            Get.back();
-                          }
+                            id: uuid.v4(),
+                            localId: uuid.v4(),
+                            image: _imageController.text,
+                            name: _nameController.text,
+                            groups: _groupsController.text,
+                            quantity: int.parse(_quantityController.text),
+                            priceSell: _priceSellController.text,
+                            priceBuy: _priceBuyController.text,
+                            codBarras: _codBarrasController
+                                .text, // Atribuição do código de barras ao novo produto
+                          );
+                          await db.addProduct(newProduct);
+                          Get.back();
                           widget.reload();
-                        },
-                        child: Text('Criar')),
-                  ],
-                ),
+                          print(newProduct.toString());
+                        }
+                      },
+                      child: Text('SALVAR'),
+                    ),
+                  ),
+                ],
               ),
-            ),
+            ],
           ),
         ),
       ),

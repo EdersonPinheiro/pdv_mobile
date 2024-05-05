@@ -1,26 +1,21 @@
-import 'dart:ffi';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:meu_estoque/page/product/create_product_page.dart';
-import 'package:meu_estoque/page/product/edit_product_page.dart';
-import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../constants/constants.dart';
-import '../../controllers/product_controller.dart';
-import '../../controllers/sync/sync_controller.dart';
+import '../../db/db.dart';
 import '../../model/product.dart';
+import 'create_product_page.dart';
 
-class ProductsPage extends StatefulWidget {
+class ProductPage extends StatefulWidget {
   @override
   _ProductPageState createState() => _ProductPageState();
 }
 
-class _ProductPageState extends State<ProductsPage> {
-  final ProductController productController = Get.put(ProductController());
-  final SyncController syncController = Get.put(SyncController());
+class _ProductPageState extends State<ProductPage> {
+  final db = DB();
   bool isLoading = false;
+  final products = <Product>[].obs;
 
   @override
   void initState() {
@@ -29,12 +24,11 @@ class _ProductPageState extends State<ProductsPage> {
   }
 
   Future<void> getProductsDB() async {
-    productController.products.value = await db.getProductsDB();
-    for (var element in productController.products) {
+    products.value = await db.getProductsDB();
+    for (var element in products) {
       element.name;
     }
-    print(productController.products.value);
-    print("Buscou os dados do DB");
+    print(products.value);
     if (mounted) {
       setState(() {
         isLoading = false;
@@ -42,61 +36,37 @@ class _ProductPageState extends State<ProductsPage> {
     }
   }
 
-  Future<void> checkConnection() async {
-    syncController.isConn == true
-        ? productController.getProducts()
-        : productController.getProductsDB();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Produtos'),
-        centerTitle: true,
+        title: Text('Produtos'),
       ),
-      body: RefreshIndicator(
-        onRefresh: checkConnection,
-        child: Obx(() => ListView.builder(
-              itemCount: productController.products.length,
-              itemBuilder: (BuildContext context, int index) {
-                Product product = productController.products[index];
-                return Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.grey.shade400,
-                        width: 0.5,
-                      ),
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                    child: ListTile(
-                      title: Text(product.name),
-                      subtitle: Text(product.description ?? ''),
-                      onTap: () async {
-                        print(product.toJson());
-                      },
-                      trailing: IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: () async {
-                          Get.to(() => EditProductPage(
-                              product: product, reload: checkConnection));
-                        },
-                      ),
-                    ),
-                  ),
-                );
-              },
-            )),
+      body: ListView.builder(
+        itemCount: products.length,
+        itemBuilder: (context, index) {
+          final product = products[index];
+          return ListTile(
+            title: Text(product.name),
+            leading: SizedBox(
+              width: 48,
+              height: 48,
+              child: product.image != null && product.image!.isNotEmpty
+                  ? Image.file(File(product.image!))
+                  : Icon(Icons.image_not_supported_rounded),
+            ),
+            onTap: () {},
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           Get.to(CreateProductPage(
-            reload: checkConnection,
+            reload: getProductsDB,
           ));
         },
-        child: const Icon(Icons.add),
+        tooltip: 'Adicionar Produto',
+        child: Icon(Icons.add),
       ),
     );
   }
