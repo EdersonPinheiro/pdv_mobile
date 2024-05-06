@@ -2,8 +2,11 @@ import 'package:efipay/efipay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:pdv_mobile/page/financ/vendas_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../constants/constants.dart';
 import '../graphs/bar_page.dart';
+import '../model/user.dart';
 import 'auth/login_page.dart';
 import 'cliente/cliente_page.dart';
 import 'payment/create_one_step_card_payment.dart';
@@ -21,6 +24,27 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 3;
+  late User _user = User(
+      localId: '',
+      nome: '',
+      email: '',
+      cpfCnpj: '',
+      dataNascimento: '');
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  void _loadUser() async {
+    final users = await db.getUserDB();
+    if (users.isNotEmpty) {
+      setState(() {
+        _user = users.first;
+      });
+    }
+  }
 
   // Lista de páginas para serem exibidas
   final List<Widget> _pages = [
@@ -68,7 +92,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   SizedBox(height: 5),
                   Text(
-                    "Ederson",
+                    _user.nome,
                     style: TextStyle(
                       fontSize: 10,
                       color: Colors.white,
@@ -76,7 +100,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   SizedBox(height: 5),
                   Text(
-                    "edersonspt@gmail.com",
+                    _user.email,
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.white,
@@ -123,7 +147,7 @@ class _HomePageState extends State<HomePage> {
             ),
             GestureDetector(
               onTap: () {
-                Get.to(PdvPage());
+                Get.to(VendasPage());
               },
               child: WillPopScope(
                 onWillPop: () async {

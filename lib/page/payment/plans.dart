@@ -2,6 +2,7 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pdv_mobile/page/payment/confirm_method_payment_page.dart';
+import 'package:pdv_mobile/page/payment/confirm_user_data.dart';
 import '../../controller/cart_controller.dart';
 import 'subscription_card.dart';
 
@@ -74,7 +75,7 @@ class _PlansState extends State<Plans> with SingleTickerProviderStateMixin {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    Get.to(ConfirmMethodPaymentPage());
+                    Get.to(ConfirmUserData());
                   },
                   child: AnimatedTextKit(
                     animatedTexts: [

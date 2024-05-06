@@ -1,4 +1,6 @@
 import 'package:efipay/efipay.dart';
+import '../../constants/constants.dart';
+import '../../model/user.dart';
 import '../credentials.dart';
 
 void createCharge(bandeira, numero, cvv, mes_exp, ano_exp) async {
@@ -19,25 +21,31 @@ void createCharge(bandeira, numero, cvv, mes_exp, ano_exp) async {
   }
 }
 
-Future<dynamic> createOneStepCharge(EfiPay efi, Map<String, Object> card, int installments) async {
+Future<dynamic> createOneStepCharge(
+    EfiPay efi, Map<String, Object> card, int installments) async {
   dynamic paymentToken = await efi.call("paymentToken", body: card);
+
+  List<User> users = await db.getUserDB();
+
+  User? user = users.isNotEmpty ? users[0] : null;
+
+  if (user == null) {
+    throw Exception("User not found in the database");
+  }
 
   dynamic body = {
     "items": [
       {"name": "Meu Estoque", "value": 100, "amount": 3}
     ],
-    /*"shippings": [
-      {"name": "Default Shipping Cost", "value": 100}
-    ],*/
     "payment": {
       "credit_card": {
         "installments": installments,
         "payment_token": paymentToken['data']['payment_token'],
         "customer": {
-          "name": "Eduarda Cruz de Angeli",
-          "email": "2301cruz@gmail.com",
-          "cpf": "04612798279",
-          "birth": "2001-01-23"
+          "name": user.nome,
+          "email": user.email,
+          "cpf": user.cpfCnpj,
+          "birth": user.dataNascimento
         }
       }
     }

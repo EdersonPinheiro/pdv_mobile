@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../controller/login_controller.dart';
+import 'package:pdv_mobile/page/auth/create_account_page.dart';
+import '../../controller/auth_controller.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -10,7 +11,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  LoginController controller = LoginController();
+  AuthController controller = AuthController();
   final _userNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -84,7 +85,9 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 16.0),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Get.to(CreateAccountPage());
+                },
                 child: const Text('Criar conta'),
               ),
             ],

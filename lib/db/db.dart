@@ -10,6 +10,7 @@ import 'package:path/path.dart';
 import 'package:intl/intl.dart';
 
 import '../model/statistics.dart';
+import '../model/user.dart';
 
 class DB {
   static Database? _db;
@@ -24,12 +25,13 @@ class DB {
 
   Future<Database> initDB() async {
     var databasesPath = await getDatabasesPath();
-    String path = join(databasesPath, "ikgod");
+    String path = join(databasesPath, "ikoubld");
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
   void _onCreate(Database db, int version) async {
     await createTableProducts(db); // PRODUTOS
+    await createTableUser(db);
     await createTableCliente(db);
     await createTableOrder(db);
     await createTableStatistics(db);
@@ -293,6 +295,71 @@ class DB {
     });
     print("Fetched ${maps.length} orders");
     return orders;
+  }
+
+  Future<void> createTableUser(Database db) async {
+    await db.execute('''
+    CREATE TABLE user (
+      id TEXT,
+      localId TEXT PRIMARY KEY,
+      nome TEXT,
+      email TEXT,
+      cpfCnpj TEXT,
+      dataNascimento TEXT
+    )
+  ''');
+  }
+
+  Future<void> addUser(User user) async {
+    final dbClient = await db;
+    await dbClient.insert('user', {
+      'id': user.id,
+      'localId': user.localId,
+      'nome': user.nome,
+      'email': user.email,
+      'cpfCnpj': user.cpfCnpj,
+      'dataNascimento': user.dataNascimento
+    });
+  }
+
+  Future<List<User>> getUserDB() async {
+    print("DB LOCAL");
+    final dbClient = await db;
+    final List<Map<String, dynamic>> maps = await dbClient.query('user');
+    List<User> clientes = [];
+    maps.forEach((map) {
+      if (map['action'] != "delete") {
+        clientes.add(User(
+          id: map['id'],
+          localId: map['localId'],
+          nome: map['nome'],
+          email: map['email'],
+          cpfCnpj: map['cpfCnpj'],
+          dataNascimento: map['dataNascimento'],
+        ));
+      }
+    });
+    print(maps.length);
+    return clientes;
+  }
+
+  Future<void> updateUser(User user) async {
+    final dbClient = await db;
+    await dbClient.update(
+      'user',
+      user.toMap(),
+      where: 'localId = ?',
+      whereArgs: [user.localId],
+    );
+  }
+
+  Future<void> deleteUser(int id) async {
+    final dbClient = await db;
+    await dbClient.delete(
+      'user',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   Future<void> createTableCliente(Database db) async {

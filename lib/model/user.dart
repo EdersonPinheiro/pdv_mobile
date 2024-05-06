@@ -1,15 +1,50 @@
 class User {
-  String fullName;
+  String? id;
+  String localId;
+  String nome;
   String email;
-  String phone;
+  String cpfCnpj;
+  String dataNascimento;
 
-  User({required this.fullName, required this.email, required this.phone});
+  User({
+    this.id,
+    required this.localId,
+    required this.nome,
+    required this.email,
+    required this.cpfCnpj,
+    required this.dataNascimento,
+  });
 
-  factory User.fromJson(Map<String, dynamic> json) {
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'localId': localId,
+      'nome': nome,
+      'email': email,
+      'cpfCnpj': cpfCnpj,
+      'dataNascimento': dataNascimento
+    };
+  }
+
+  factory User.fromJson(Map<String, dynamic> map) {
     return User(
-      fullName: json['fullname'] ?? '',
-      email: json['email'] ?? '',
-      phone: json['phone'] ?? '',
+      id: map['id'],
+      localId: map['localId'],
+      nome: map['nome'],
+      email: map['email'],
+      cpfCnpj: map['cpfCnpj'],
+      dataNascimento: map['dataNascimento'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'localId': localId,
+      'nome': nome,
+      'email': email,
+      'cpfCnpj': cpfCnpj,
+      'dataNascimento': dataNascimento
+    };
   }
 }

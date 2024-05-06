@@ -8,8 +8,7 @@ class PdvPage extends StatefulWidget {
   _PdvPageState createState() => _PdvPageState();
 }
 
-class _PdvPageState extends State<PdvPage>
-    with SingleTickerProviderStateMixin {
+class _PdvPageState extends State<PdvPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -28,13 +27,13 @@ class _PdvPageState extends State<PdvPage>
           controller: _tabController,
           tabs: [
             Tab(text: 'Vendas'),
-            Tab(text: 'Compras'),
+            //Tab(text: 'Compras'),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [VendasPage(), ComprasPage()],
+        children: [VendasPage()],
       ),
     );
   }
