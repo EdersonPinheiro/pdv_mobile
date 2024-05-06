@@ -1,9 +1,9 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pdv_mobile/page/payment/confirm_method_payment_page.dart';
 import '../../controller/cart_controller.dart';
 import 'subscription_card.dart';
-
 
 class Plans extends StatefulWidget {
   //const Plans({Key key});
@@ -12,8 +12,7 @@ class Plans extends StatefulWidget {
   _PlansState createState() => _PlansState();
 }
 
-class _PlansState extends State<Plans>
-    with SingleTickerProviderStateMixin {
+class _PlansState extends State<Plans> with SingleTickerProviderStateMixin {
   var height, width;
   late TabController _tabController;
   final CartController checkoutController = Get.put(CartController());
@@ -75,7 +74,7 @@ class _PlansState extends State<Plans>
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    await checkoutController.checkout();
+                    Get.to(ConfirmMethodPaymentPage());
                   },
                   child: AnimatedTextKit(
                     animatedTexts: [

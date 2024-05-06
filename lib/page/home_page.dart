@@ -89,19 +89,7 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               title: Text('Premium'),
               onTap: () async {
-                /*credentials.remove('certificate');
-                EfiPay efi = EfiPay(credentials);
-                Map<String, Object> card = {
-                  "brand": "visa",
-                  "number": "4485388557842262",
-                  "cvv": "572",
-                  "expiration_month": "08",
-                  "expiration_year": "2024"
-                };
-                dynamic response = await createOneStepCharge(efi, card, 1);
-                print(response);*/
-
-                //Get.to(Plans());
+                Get.to(Plans());
               },
             ),
             ListTile(

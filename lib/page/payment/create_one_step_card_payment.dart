@@ -1,5 +1,4 @@
 import 'package:efipay/efipay.dart';
-
 import '../credentials.dart';
 
 void createCharge(bandeira, numero, cvv, mes_exp, ano_exp) async {
@@ -43,7 +42,7 @@ Future<dynamic> createOneStepCharge(EfiPay efi, Map<String, Object> card, int in
           "state": "PR"
         },
         "customer": {
-          "name": "Eduarda Cruz de Angei",
+          "name": "Eduarda Cruz de Angeli",
           "email": "2301cruz@gmail.com",
           "cpf": "04612798279",
           "birth": "2001-01-23",

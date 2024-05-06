@@ -14,8 +14,7 @@ class CartController {
           'X-Parse-Application-Id': KeyApplicationId,
           'X-Parse-REST-API-Key': KeyClientKey,
           'X-Parse-Session-Token': userToken,
-          'Content-Type':
-              'application/json',
+          'Content-Type': 'application/json',
         },
         body: jsonEncode({"total": 0.01}),
       );

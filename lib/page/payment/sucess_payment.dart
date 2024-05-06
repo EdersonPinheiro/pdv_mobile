@@ -5,14 +5,14 @@ import 'package:get/get.dart';
 
 import '../home_page.dart';
 
-class ConfirmPaymentPage extends StatefulWidget {
-  const ConfirmPaymentPage({super.key});
+class SucessPayment extends StatefulWidget {
+  const SucessPayment({super.key});
 
   @override
-  State<ConfirmPaymentPage> createState() => _ConfirmPaymentPageState();
+  State<SucessPayment> createState() => _SucessPaymentState();
 }
 
-class _ConfirmPaymentPageState extends State<ConfirmPaymentPage> {
+class _SucessPaymentState extends State<SucessPayment> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
