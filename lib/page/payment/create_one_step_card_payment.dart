@@ -33,20 +33,11 @@ Future<dynamic> createOneStepCharge(EfiPay efi, Map<String, Object> card, int in
       "credit_card": {
         "installments": installments,
         "payment_token": paymentToken['data']['payment_token'],
-        "billing_address": {
-          "street": "Rua Sao Joao",
-          "number": 966,
-          "neighborhood": "Zona 7",
-          "zipcode": "87030200",
-          "city": "Maringa",
-          "state": "PR"
-        },
         "customer": {
           "name": "Eduarda Cruz de Angeli",
           "email": "2301cruz@gmail.com",
           "cpf": "04612798279",
-          "birth": "2001-01-23",
-          "phone_number": "44984263024"
+          "birth": "2001-01-23"
         }
       }
     }
