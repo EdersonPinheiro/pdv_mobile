@@ -11,6 +11,7 @@ import 'auth/login_page.dart';
 import 'cliente/cliente_page.dart';
 import 'payment/create_one_step_card_payment.dart';
 import 'credentials.dart';
+import 'payment/pix/create_charge_page.dart';
 import 'payment/plans.dart';
 import 'pdv.dart';
 import 'product/product_page.dart';
@@ -24,12 +25,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 3;
-  late User _user = User(
-      localId: '',
-      nome: '',
-      email: '',
-      cpfCnpj: '',
-      dataNascimento: '');
+  late User _user =
+      User(localId: '', nome: '', email: '', cpfCnpj: '', dataNascimento: '');
 
   @override
   void initState() {
@@ -52,7 +49,7 @@ class _HomePageState extends State<HomePage> {
     ClientePage(), // Página 1
     PdvPage(), // Página 2
     OrderPage(), // Página 3
-    BarPage(), // Página 4
+    CreateChargePage(), // Página 4
   ];
 
   // Função chamada ao selecionar um item da BottomNavigationBar
@@ -112,8 +109,9 @@ class _HomePageState extends State<HomePage> {
             ),
             ListTile(
               title: Text('Premium'),
-              onTap: () async {
-                Get.to(Plans());
+              onTap: () {
+                Get.to(CreateChargePage());
+                //Get.to(Plans());
               },
             ),
             ListTile(
