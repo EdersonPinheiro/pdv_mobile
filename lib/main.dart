@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
+import 'constants/constants.dart';
 import 'page/auth/login_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Parse().initialize(
+    KeyApplicationId,
+    KeyParseServerUrl,
+    clientKey: KeyClientKey,
+    liveQueryUrl: 'wss://mystockcloneapp.b4a.io',
+    debug: true,
+  );
   runApp(const MyApp());
 }
 

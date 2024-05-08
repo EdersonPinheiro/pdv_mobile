@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:efipay/efipay.dart';
 import 'package:flutter/material.dart';
 import 'package:pdv_mobile/page/payment/pix/credentials.dart';
+import 'package:http/http.dart' as http;
+
+import '../../../constants/constants.dart';
 
 class CreateChargePage extends StatefulWidget {
   const CreateChargePage({Key? key}) : super(key: key);
@@ -39,6 +43,23 @@ class _CreateChargePageState extends State<CreateChargePage> {
     return Image.memory(_byteImage!.buffer.asUint8List());
   }
 
+  Future<dynamic> checkout(String txid) async {
+    try {
+      final response = await http.post(Uri.parse("$b4a/checkout"), headers: {
+        'X-Parse-Application-Id': KeyApplicationId,
+        'X-Parse-REST-API-Key': KeyClientKey,
+        'X-Parse-Session-Token': userToken
+      }, body: {
+        "total": 0.01.toString(),
+        "txid": txid
+      });
+
+      return response.toString();
+    } catch (e) {
+      print(e);
+    }
+  }
+
   Future<void> pixCreateImmediateCharge(EfiPay efipay, String key) async {
     dynamic body = {
       "calendario": {"expiracao": 3600},
@@ -49,7 +70,8 @@ class _CreateChargePageState extends State<CreateChargePage> {
     };
 
     dynamic response =
-        await efipay.call("pixCreateImmediateCharge", body: body).then((value) {
+        await efipay.call("pixCreateImmediateCharge", body: body).then((value) async{
+        await checkout(value['txid']);
       efipay.call("pixGenerateQRCode", params: {"id": value["loc"]["id"]}).then(
           (value) {
         setState(() {
@@ -61,4 +83,6 @@ class _CreateChargePageState extends State<CreateChargePage> {
     }).catchError((err) => print((err)));
     print(response);
   }
+
+
 }
