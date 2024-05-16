@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../db/db.dart';
 import '../../model/product.dart';
@@ -61,9 +62,33 @@ class _ProductPageState extends State<ProductPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          Get.to(CreateProductPage(
+          const uuid = Uuid();
+          final newProduct = Product(
+              id: uuid.v4(),
+              localId: uuid.v4(),
+              image: null,
+              name: 'teste',
+              groups: 'teste',
+              quantity: 5,
+              priceSell: '60',
+              priceBuy: '20',
+              codBarras: null);
+          final newProduct2 = Product(
+              id: uuid.v4(),
+              localId: uuid.v4(),
+              image: null,
+              name: 'Alexa',
+              groups: 'tesfte',
+              quantity: 5,
+              priceSell: '60',
+              priceBuy: '20',
+              codBarras: null);
+          await db.addProduct(newProduct);
+          await db.addProduct(newProduct2);
+
+          /*Get.to(CreateProductPage(
             reload: getProductsDB,
-          ));
+          ));*/
         },
         tooltip: 'Adicionar Produto',
         child: Icon(Icons.add),
