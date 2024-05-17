@@ -86,30 +86,6 @@ class AuthController {
     }
   }
 
-  /*Future<void> logOut(String sessionToken) async {
-    try {
-      final response = await Dio().post(
-        'https://parseapi.back4app.com/parse/functions/log-out',
-        options: Options(
-          headers: {
-            'X-Parse-Application-Id':
-                'YL2IncWbsoj2a3FQKByPEr89wwhFmoyWhPob5MP0',
-            'X-Parse-REST-API-Key': 'w7IrZb43oVfFf0rbyIf9z0bNJCod7KaOnYo2sLF6',
-          },
-        ),
-        data: {"token": sessionToken},
-      );
-
-      if (response.statusCode == 200) {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.clear(); // Limpa os valores do SharedPreferences
-        Get.offAll(const LoginPage());
-      }
-    } catch (e) {
-      print(e);
-    }
-  }*/
-
   Future<void> resetPassword(String email) async {
     try {
       final response = await Dio().post(
