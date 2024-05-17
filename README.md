@@ -10,7 +10,7 @@ Nesse projeto se consiste em basicamente um PDV Mobile, onde o usuario vai ter o
 
 ![image](https://github.com/EdersonPinheiro/pdv_mobile/assets/88673530/865ca058-5b7c-42d1-9311-135eb95a0ab7)
 
-![image](https://github.com/EdersonPinheiro/pdv_mobile/assets/88673530/437eb2aa-a6ca-462e-9776-78d8ce10ff98)
+![image](https://github.com/EdersonPinheiro/pdv_mobile/assets/88673530/c79de833-3400-4edd-bd1c-a373b6258eb2)
 
 ![image](https://github.com/EdersonPinheiro/pdv_mobile/assets/88673530/7832c6d4-9d21-418a-8580-c6f4d5d22326)
 
