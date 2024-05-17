@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
     ClientePage(), // Página 1
     PdvPage(), // Página 2
     OrderPage(), // Página 3
-    CreateChargePage(), // Página 4
+    BarPage(), // Página 4
   ];
 
   // Função chamada ao selecionar um item da BottomNavigationBar

@@ -25,7 +25,7 @@ class DB {
 
   Future<Database> initDB() async {
     var databasesPath = await getDatabasesPath();
-    String path = join(databasesPath, "ikoubld");
+    String path = join(databasesPath, "ikbld");
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
